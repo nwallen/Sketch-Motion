@@ -1,26 +1,37 @@
+ @import 'common.js'
+ @import 'Tween.js'
+
  var testMotion = function(context) {
     context.document.showMessage("running motion test");
-
-    [coscript setShouldKeepAround:true];
-
-    var idx = 0;
     var target = context.selection[0];
 
-    [coscript scheduleWithRepeatingInterval:0.0000001 jsFunction:function(cinterval) {
-      print("hello again! (" + idx + ")");
-      frame = [target rect];
-      frame.origin.y = frame.origin.y + 1;
-      [target setRect:frame]
-      var view = context.document.currentView;
-      view().refresh();
-      idx++;
-      if (idx > 500) {
-          print("Canceling");
-          [cinterval cancel];
-      }
-    
-    }];
+    //TODO: resolve bug -- running script multiple times crashes Sketch
+    [[COScript currentCOScript] setShouldKeepAround:true]
 
+    var animationComplete = false;
+    var frame = [target rect];
+    var tween = new TWEEN.Tween( { x: frame.origin.x, y: frame.origin.y } )
+        .to( { x: frame.origin.x + 100, y: frame.origin.y + 100 }, 2000 )
+        .easing( TWEEN.Easing.Elastic.InOut )
+        .onUpdate( function(){
+            frame.origin.x = this.x;
+            frame.origin.y = this.y;
+            [target setRect:frame]
+            var view = context.document.currentView;
+            view().refresh();
+        })
+        .onComplete( function(){
+            context.document.showMessage("done!");
+            animationComplete = true;
+        })
+        .start();
+
+    [coscript scheduleWithRepeatingInterval:0.01666666 jsFunction:function(cinterval) {
+       TWEEN.update(Date.now()); 
+       if(animationComplete == true){
+          [cinterval cancel]
+       }
+    }];
 
  }
 
