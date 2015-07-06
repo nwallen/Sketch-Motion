@@ -1,0 +1,21 @@
+{
+  "identifier" : "com.nicholaswallen.sketchplugins.motion",
+  "version" : "0.1.0",
+  "description" : "A sample plugin which shows and hides a tagged selection of layers.",
+  "name" : "Motion",
+  "author" : "Nicholas Wallen",
+  "commands" : [
+    {
+      "script" : "motion.js",
+      "handler" : "testMotion",
+      "shortcut" : "cmd ctrl t",
+      "name" : "Test Motion",
+      "identifier" : "testMotion"
+    }
+  ],
+  "menu": {
+    "items": [
+      "testMotion"
+    ]
+  }
+}
