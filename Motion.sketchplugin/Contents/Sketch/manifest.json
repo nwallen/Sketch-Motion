@@ -11,11 +11,19 @@
       "shortcut" : "cmd ctrl t",
       "name" : "Test Motion",
       "identifier" : "testMotion"
-    }
+    },
+    {
+      "script" : "motion.js",
+      "handler" : "playAnimations",
+      "shortcut" : "cmd ctrl a",
+      "name" : "Animate",
+      "identifier" : "playAnimations"
+    },
   ],
   "menu": {
     "items": [
-      "testMotion"
+      "testMotion",
+      "playAnimations"
     ]
   }
 }
