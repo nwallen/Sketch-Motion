@@ -222,7 +222,13 @@ var playAnimation = function(name, containerLayer){
              [child removeFromParent];
         } 
     }
-    // Copy all top-level layers from first keyframe artboard into containerlayer
+    // resize containerlayer to match first keyframe artboard
+    var keyframeFrame = targetAnimation.keyframes[0].rect();
+    var containerFrame = containerLayer.rect();
+    containerFrame.size = keyframeFrame.size;
+    containerLayer.setRect(containerFrame);
+
+    // Copy all top-level layers from first keyframe containerlayer
     var layers = targetAnimation.keyframes[0].layers();
     for(var t=0; t < [layers count]; t++){
         var layer = layers.objectAtIndex(t);
