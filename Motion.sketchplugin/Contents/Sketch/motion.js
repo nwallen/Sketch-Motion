@@ -48,6 +48,14 @@ var compareLayerProperties = function(inFrameLayer, outFrameLayer){
     if(inFrameLayer.rotation() != outFrameLayer.rotation()){
         states.in.rotation = parseFloat(inFrameLayer.rotation());
         states.out.rotation = parseFloat(outFrameLayer.rotation()); 
+    }    
+    // Style properties
+    inStyle = inFrameLayer.style();
+    outStyle = outFrameLayer.style();
+    // opacity
+    if(inStyle.contextSettings().opacity() != outStyle.contextSettings().opacity()){
+        states.in.opacity = parseFloat(inStyle.contextSettings().opacity());
+        states.out.opacity = parseFloat(outStyle.contextSettings().opacity()); 
     }
     return states;
 }
@@ -140,7 +148,7 @@ var createTween = function(states, targetLayer, containerLayer) {
             .onUpdate(function(){   
                 for( var l=0; l < layers.length; l++){
                     var layer = layers[l];
-                    var frame =  layer.rect();
+                    var frame = layer.rect();
                     if(this.x){
                         frame.origin.x = this.x;
                     }
@@ -157,10 +165,27 @@ var createTween = function(states, targetLayer, containerLayer) {
                         layer.setRotation(this.rotation);
                     }
                     layer.setRect(frame);
+                    var style = layer.style();
+                    if(this.opacity){
+                        style.contextSettings().opacity = this.opacity;
+                    }
+                    layer.setStyle(style);
                     doc.currentView().refresh();
                 }
             });
     return tween;
+}
+
+var chainTweens = function(tweens){
+    // chain transitions so they play in sequence
+    for(var t=0; t < tweens.length; t++){
+        if(t+1 < tweens.length){
+            tweens[t].chain(tweens[t+1]);
+        }
+        if(t == 0){
+            tweens[t].start();
+        }
+    }
 }
 
 var initTweens = function(animation, containerLayer){
@@ -170,19 +195,13 @@ var initTweens = function(animation, containerLayer){
         if(transitions.hasOwnProperty(transition)){
             var layerTransitions = transitions[transition];
             // iterate individual layer transitions
-            var lastTween = null;
+            var tweens = [];
             for(var t=0; t < layerTransitions.length; t++){
                 var layerTransition = layerTransitions[t];
                 var tween = createTween(layerTransition.states, layerTransition.target, containerLayer);
-                // chain transitions so they play in sequence
-                if(lastTween){
-                    lastTween.chain(tween);
-                }
-                else {
-                    tween.start();
-                    lastTween = tween;
-                }
+                tweens[t] = tween;
             }
+            chainTweens(tweens);
         }
     }
 }
