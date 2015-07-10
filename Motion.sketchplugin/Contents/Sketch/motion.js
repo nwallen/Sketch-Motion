@@ -1,5 +1,6 @@
 @import 'common.js'
 @import 'Tween.js'
+@import 'helpers.js'
 
 var doc;
 var selection;
@@ -15,16 +16,12 @@ var onStart = function(context){
     initAnimations();
 }
 
-var checkForAnimationReference = function(layerName) {
-    return layerName.match(/\{(\S+)\}/g);
-}
-
 var compareLayerProperties = function(inFrameLayer, outFrameLayer){
     var states = {
         in: {},
         out:{}
     };
-    // Frame position properties
+    // Frame properties
     inRect = inFrameLayer.rect();
     outRect = outFrameLayer.rect();
     //x
@@ -36,6 +33,16 @@ var compareLayerProperties = function(inFrameLayer, outFrameLayer){
     if(inRect.origin.y != outRect.origin.y){
         states.in.y = parseFloat(inRect.origin.y);
         states.out.y = parseFloat(outRect.origin.y);   
+    }
+    //width
+    if(inRect.size.width != outRect.size.width){
+        states.in.width = parseFloat(inRect.size.width);
+        states.out.width = parseFloat(outRect.size.width);   
+    }
+    //height
+     if(inRect.size.height != outRect.size.height){
+        states.in.height = parseFloat(inRect.size.height);
+        states.out.height = parseFloat(outRect.size.height);   
     }
     return states;
 }
@@ -119,20 +126,9 @@ var initAnimations = function(){
     calculateTransitions();
 }
 
-var findLayersWithName = function(name, container){
-    var children = container.children();
-    var layers = [];
-    for(var c=0; c < [children count]; c++){
-        var child = children[c];
-        if(child.name() == name && child.isMemberOfClass(MSLayerGroup)){
-            layers.push(child);
-        }
-    }
-    return layers;
-}
 
 var createTween = function(states, targetLayer, containerLayer) {
-    var layers = findLayersWithName(targetLayer.name(), containerLayer);
+    var layers = findLayerGroupsWithName(targetLayer.name(), containerLayer);
     var tween = new TWEEN.Tween(states.in)
             .to(states.out, 800)
             .easing( TWEEN.Easing.Elastic.InOut )
@@ -145,6 +141,12 @@ var createTween = function(states, targetLayer, containerLayer) {
                     }
                     if(this.y){
                         frame.origin.y = this.y;
+                    }
+                     if(this.height){
+                        frame.size.height = this.height;
+                    }
+                    if(this.width){
+                        frame.size.width = this.width;
                     }
                     layer.setRect(frame);
                     doc.currentView().refresh();
@@ -164,6 +166,7 @@ var initTweens = function(animation, containerLayer){
             for(var t=0; t < layerTransitions.length; t++){
                 var layerTransition = layerTransitions[t];
                 var tween = createTween(layerTransition.states, layerTransition.target, containerLayer);
+                // chain transitions so they play in sequence
                 if(lastTween){
                     lastTween.chain(tween);
                 }
@@ -174,6 +177,17 @@ var initTweens = function(animation, containerLayer){
             }
         }
     }
+}
+
+var animate = function() {
+    // run animation loop
+    [coscript scheduleWithRepeatingInterval:0.01666666 jsFunction:function(cinterval) {
+       TWEEN.update();
+       // kill loop when tweens are done
+       if(TWEEN.getAll().length == 0){
+            [cinterval cancel]
+       } 
+    }];
 }
 
 var playAnimation = function(name, containerLayer){
@@ -198,16 +212,9 @@ var playAnimation = function(name, containerLayer){
         var layerCopy = [layer copy];
         containerLayer.addLayers([layerCopy]);
     }
+    log(targetAnimation);
     // create tweens
-    initTweens(targetAnimation, containerLayer)
-    // run animation loop
-    [coscript scheduleWithRepeatingInterval:0.01666666 jsFunction:function(cinterval) {
-       TWEEN.update();
-       // kill loop when tweens are done
-       if(TWEEN.getAll().length == 0){
-            [cinterval cancel]
-       } 
-    }];
+    initTweens(targetAnimation, containerLayer);
 }
 
 var playAnimations = function(context){
@@ -233,10 +240,11 @@ var playAnimations = function(context){
             if(child.isMemberOfClass(MSLayerGroup)){
                 var animationName = checkForAnimationReference(childName);
                 if(animationName){
-                    playAnimation(animationName, child);
+                     playAnimation(animationName, child);
                 }
             }
         }
+        animate();
     }
 }
 
