@@ -44,6 +44,11 @@ var compareLayerProperties = function(inFrameLayer, outFrameLayer){
         states.in.height = parseFloat(inRect.size.height);
         states.out.height = parseFloat(outRect.size.height);   
     }
+    //rotation
+    if(inFrameLayer.rotation() != outFrameLayer.rotation()){
+        states.in.rotation = parseFloat(inFrameLayer.rotation());
+        states.out.rotation = parseFloat(outFrameLayer.rotation()); 
+    }
     return states;
 }
 
@@ -147,6 +152,9 @@ var createTween = function(states, targetLayer, containerLayer) {
                     }
                     if(this.width){
                         frame.size.width = this.width;
+                    }
+                    if(this.rotation){
+                        layer.setRotation(this.rotation);
                     }
                     layer.setRect(frame);
                     doc.currentView().refresh();
