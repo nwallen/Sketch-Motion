@@ -63,23 +63,23 @@ var compareLayerProperties = function(inFrameLayer, outFrameLayer){
     outRect = outFrameLayer.rect();
     //x
     if(inRect.origin.x != outRect.origin.x){
-        states.in.x = inRect.origin.x;
-        states.out.x = outRect.origin.x;
+        states.in.x = parseFloat(inRect.origin.x);
+        states.out.x = parseFloat(outRect.origin.x);
     }
     //y
     if(inRect.origin.y != outRect.origin.y){
-        states.in.y = inRect.origin.y;
-        states.out.y = outRect.origin.y;   
+        states.in.y = parseFloat(inRect.origin.y);
+        states.out.y = parseFloat(outRect.origin.y);   
     }
     return states;
 }
 
 var compareKeyframes = function(inFrame, outFrame){
     //loop through each layer group in inFrame
-    //search for same layer in outFrame
+    //search for same layer group in the outFrame
     //if layer is found compare properties
-    //if properties are different save
-    //return object of in and out properties
+    //if properties are different save states
+    //return object containing in and out states for each target layer
     var transitions = [];
     var inFrameLayers = inFrame.children();
     var outFrameLayers = outFrame.children();
@@ -93,9 +93,6 @@ var compareKeyframes = function(inFrame, outFrame){
                 // layers match
                 if(inFrameLayerName == outFrameLayerName && outFrameLayer.isMemberOfClass(MSLayerGroup)){  
                     var states =  compareLayerProperties(inFrameLayer, outFrameLayer);
-                    // var tween = new TWEEN.Tween( states.in )
-                    //     .to( states.out, 2000)
-                    //     .easing( TWEEN.Easing.Elastic.InOut );
                     var transition = {
                         target: inFrameLayer,
                         states: states
@@ -115,21 +112,25 @@ var calculateTransitions = function() {
             var keyframeCount = config.keyframes.length;
             var transitionCount = keyframeCount - 1;
             if(transitionCount === 0) continue;
-            config.transitions = [];
+            config.transitions = {};
+            // compare keyframes
             for(var t=0; t < transitionCount; t++){
                 var inFrame = config.keyframes[t];
                 var outFrame = config.keyframes[t+1];
-                config.transitions = compareKeyframes(inFrame, outFrame);
-                //log(inFrame + " inFrame to" + outFrame + " outFrame");
+                var transitions = compareKeyframes(inFrame, outFrame);
+                for(var i=0; i < transitions.length; i++){
+                    var transition = transitions[i];
+                    config.transitions[transition.target.name()] = config.transitions[transition.target.name()] || [];
+                    config.transitions[transition.target.name()].push(transition);
+                }
             }
-            // Create pairs of artboard keyframes for transitions
-            // Detect differences in supported properties between layers with the same name in each transition pair
         } 
     }
+   
 }
 
 var initAnimations = function(){
-    // look at artboards on all document pages
+    // Check artboards on all document pages
     var pages = doc.pages();
     for(var p=0; p < [pages count]; p++){
         var page = pages.objectAtIndex(p);
@@ -154,6 +155,63 @@ var initAnimations = function(){
     calculateTransitions();
 }
 
+var findLayersWithName = function(name, container){
+    var children = container.children();
+    var layers = [];
+    for(var c=0; c < [children count]; c++){
+        var child = children[c];
+        if(child.name() == name && child.isMemberOfClass(MSLayerGroup)){
+            layers.push(child);
+        }
+    }
+    return layers;
+}
+
+var createTween = function(states, targetLayer, containerLayer) {
+    var layers = findLayersWithName(targetLayer.name(), containerLayer);
+    var tween = new TWEEN.Tween(states.in)
+            .to(states.out, 800)
+            .easing( TWEEN.Easing.Elastic.InOut )
+            .onUpdate(function(){   
+                for( var l=0; l < layers.length; l++){
+                    var layer = layers[l];
+                    var frame =  layer.rect();
+                    if(this.x){
+                        frame.origin.x = this.x;
+                    }
+                    if(this.y){
+                        frame.origin.y = this.y;
+                    }
+                    layer.setRect(frame);
+                    doc.currentView().refresh();
+                }
+            });
+    return tween;
+}
+
+var initTweens = function(animation, containerLayer){
+    var transitions = animation.transitions;
+    // iterate keyframe transitions
+    for(var transition in transitions){
+        if(transitions.hasOwnProperty(transition)){
+            var layerTransitions = transitions[transition];
+            // iterate individual layer transitions
+            var lastTween = null;
+            for(var t=0; t < layerTransitions.length; t++){
+                var layerTransition = layerTransitions[t];
+                var tween = createTween(layerTransition.states, layerTransition.target, containerLayer);
+                if(lastTween){
+                    lastTween.chain(tween);
+                }
+                else {
+                    tween.start();
+                    lastTween = tween;
+                }
+            }
+        }
+    }
+}
+
 var playAnimation = function(name, containerLayer){
     var targetAnimation = animations[name];
     // Clear target group(s) on selected artboard 
@@ -172,10 +230,15 @@ var playAnimation = function(name, containerLayer){
         containerLayer.addLayers([layerCopy]);
     }
     // create tweens for correct layers
-    //log(name + " animation play")
-    // [coscript scheduleWithRepeatingInterval:0.01666666 jsFunction:function(cinterval) {
-    //    TWEEN.update(Date.now()); 
-    // }];
+    initTweens(targetAnimation, containerLayer)
+    // animation loop
+    [coscript scheduleWithRepeatingInterval:0.01666666 jsFunction:function(cinterval) {
+       TWEEN.update();
+       // kill loop when Tweens are done
+       if(TWEEN.getAll().length == 0){
+            [cinterval cancel]
+       } 
+    }];
 }
 
 var playAnimations = function(context){
