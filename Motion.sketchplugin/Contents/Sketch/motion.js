@@ -7,47 +7,13 @@ var animations = {};
 
 
 var onStart = function(context){
-    //TODO: resolve bug -- running script multiple times crashes Sketch
+    //TODO: resolve bug -- calling script multiple times in quick succession crashes Sketch
     [[COScript currentCOScript] setShouldKeepAround:true]
     doc = context.document;
     selection = context.selection;
-    // For each animation: 
     // Find animation artboards (keyframes)
     initAnimations();
 }
-
-// quick proof of concept test
-var testMotion = function(context) {
-    onStart(context);
-    doc.showMessage("running motion test");
-    
-    var target = context.selection[0];
-    var animationComplete = false;
-    var frame = [target rect];
-    var tween = new TWEEN.Tween( { x: frame.origin.x, y: frame.origin.y } )
-        .to( { x: frame.origin.x + 100, y: frame.origin.y + 100 }, 2000 )
-        .easing( TWEEN.Easing.Elastic.InOut )
-        .onUpdate( function(){
-            frame.origin.x = this.x;
-            frame.origin.y = this.y;
-            [target setRect:frame]
-            var view = context.document.currentView;
-            view().refresh();
-        })
-        .onComplete( function(){
-            doc.showMessage("done!");
-            animationComplete = true;
-        })
-        .start();
-
-    [coscript scheduleWithRepeatingInterval:0.01666666 jsFunction:function(cinterval) {
-       TWEEN.update(Date.now()); 
-       if(animationComplete == true){
-          [cinterval cancel]
-       }
-    }];
-
- }
 
 var checkForAnimationReference = function(layerName) {
     return layerName.match(/\{(\S+)\}/g);
@@ -75,28 +41,26 @@ var compareLayerProperties = function(inFrameLayer, outFrameLayer){
 }
 
 var compareKeyframes = function(inFrame, outFrame){
-    //loop through each layer group in inFrame
-    //search for same layer group in the outFrame
-    //if layer is found compare properties
-    //if properties are different save states
-    //return object containing in and out states for each target layer
     var transitions = [];
     var inFrameLayers = inFrame.children();
     var outFrameLayers = outFrame.children();
     for(var l=0; l < [inFrameLayers count]; l++){
         var inFrameLayer = inFrameLayers.objectAtIndex(l);
         var inFrameLayerName = inFrameLayer.name();
+        //loop through each layer group in inFrame
         if(inFrameLayer.isMemberOfClass(MSLayerGroup)){
             for(var o=0; o < [outFrameLayers count]; o++){
                 var outFrameLayer = outFrameLayers.objectAtIndex(o);
                 var outFrameLayerName = outFrameLayer.name();
-                // layers match
+                //search for same layer group in the outFrame
                 if(inFrameLayerName == outFrameLayerName && outFrameLayer.isMemberOfClass(MSLayerGroup)){  
+                    //if properties are different save states
                     var states =  compareLayerProperties(inFrameLayer, outFrameLayer);
                     var transition = {
                         target: inFrameLayer,
                         states: states
                     }
+                    //return object containing in and out states for each target layer
                     transitions.push(transition);
                 }
             }
@@ -227,20 +191,19 @@ var playAnimation = function(name, containerLayer){
     var containerFrame = containerLayer.rect();
     containerFrame.size = keyframeFrame.size;
     containerLayer.setRect(containerFrame);
-
-    // Copy all top-level layers from first keyframe containerlayer
+    // Copy all top-level layer groups from first keyframe to containerlayer
     var layers = targetAnimation.keyframes[0].layers();
     for(var t=0; t < [layers count]; t++){
         var layer = layers.objectAtIndex(t);
         var layerCopy = [layer copy];
         containerLayer.addLayers([layerCopy]);
     }
-    // create tweens for correct layers
+    // create tweens
     initTweens(targetAnimation, containerLayer)
-    // animation loop
+    // run animation loop
     [coscript scheduleWithRepeatingInterval:0.01666666 jsFunction:function(cinterval) {
        TWEEN.update();
-       // kill loop when Tweens are done
+       // kill loop when tweens are done
        if(TWEEN.getAll().length == 0){
             [cinterval cancel]
        } 
@@ -249,7 +212,6 @@ var playAnimation = function(name, containerLayer){
 
 var playAnimations = function(context){
     onStart(context);
-  
     var artboards = [];
     for(var s=0; s < [selection count]; s++){
         if(selection[s].isMemberOfClass(MSArtboardGroup)){
@@ -276,10 +238,6 @@ var playAnimations = function(context){
             }
         }
     }
-    // When target artboard is initialized:
-    // Add tweens to update layers in selected artboard
-    // Start animation loop to run tweens
-    // On complete of last tween kill loop 
 }
 
 

@@ -7,13 +7,6 @@
   "commands" : [
     {
       "script" : "motion.js",
-      "handler" : "testMotion",
-      "shortcut" : "cmd ctrl t",
-      "name" : "Test Motion",
-      "identifier" : "testMotion"
-    },
-    {
-      "script" : "motion.js",
       "handler" : "playAnimations",
       "shortcut" : "cmd ctrl a",
       "name" : "Animate",
@@ -22,7 +15,6 @@
   ],
   "menu": {
     "items": [
-      "testMotion",
       "playAnimations"
     ]
   }
