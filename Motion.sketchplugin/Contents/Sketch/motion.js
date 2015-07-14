@@ -126,6 +126,7 @@ var initAnimations = function(){
                 var animationName = checkForAnimationReference(layer.name())
                 if(animationName){
                     animations[animationName] = animations[animationName] || {};
+                    animations[animationName].name = animationName[0];
                     animations[animationName].keyframes = animations[animationName].keyframes || [];
                     var keyframe = {
                         layer: layer,
@@ -150,12 +151,22 @@ var initAnimations = function(){
 }
 
 
-var createTween = function(states, targetLayer, containerLayer, timing) {
+var createTween = function(states, targetLayer, containerLayer, timing, animationName, transitionName) {
     var layers = findLayerGroupsWithName(targetLayer.name(), containerLayer);
     var tween = new TWEEN.Tween(states.in)
             .to(states.out, timing.duration )
             .easing( timing.easing )
             .delay( timing.delay )
+            .onStart(function(){
+                if(animationName && transitionName){
+                    highlightTimelineFrame(transitionName, animationName);
+                }
+            })
+            .onComplete(function(){
+                if(animationName && transitionName){
+                    unHighlightTimelineFrame(transitionName, animationName);
+                }
+            })
             .onUpdate(function(){   
                 for( var l=0; l < layers.length; l++){
                     var layer = layers[l];
@@ -210,7 +221,9 @@ var initTweens = function(animation, containerLayer){
             for(var t=0; t < layerTransitions.length; t++){
                 var layerTransition = layerTransitions[t];
                 var timing = animation.keyframes[t+1].timing;
-                var tween = createTween(layerTransition.states, layerTransition.target, containerLayer, timing);
+                var animationName = animation.name;
+                var transitionName = getTransitionName(animationName, t, t+1);
+                var tween = createTween(layerTransition.states, layerTransition.target, containerLayer, timing, animationName, transitionName);
                 tweens[t] = tween;
             }
             chainTweens(tweens);
