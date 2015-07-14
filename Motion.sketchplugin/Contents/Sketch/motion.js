@@ -1,11 +1,11 @@
 @import 'common.js'
 @import 'Tween.js'
 @import 'helpers.js'
+@import 'timeline.js'
 
 var doc;
 var selection;
 var animations = {};
-
 
 var onStart = function(context){
     //TODO: resolve bug -- calling script multiple times in quick succession crashes Sketch
@@ -92,26 +92,27 @@ var compareKeyframes = function(inFrame, outFrame){
 var calculateTransitions = function() {
     for(var animationConfig in animations){
         if(animations.hasOwnProperty(animationConfig)){
-            var config = animations[animationConfig];
-            var keyframeCount = config.keyframes.length;
+            var animation = animations[animationConfig];
+            var keyframeCount = animation.keyframes.length;
             var transitionCount = keyframeCount - 1;
             if(transitionCount === 0) continue;
-            config.transitions = {};
-            // compare keyframes
+            animation.transitions = {};
+            // compare keyframes for all transitions
             for(var t=0; t < transitionCount; t++){
-                var inFrame = config.keyframes[t];
-                var outFrame = config.keyframes[t+1];
+                var inFrame = animation.keyframes[t].layer;
+                var outFrame = animation.keyframes[t+1].layer;
                 var transitions = compareKeyframes(inFrame, outFrame);
                 for(var i=0; i < transitions.length; i++){
                     var transition = transitions[i];
-                    config.transitions[transition.target.name()] = config.transitions[transition.target.name()] || [];
-                    config.transitions[transition.target.name()].push(transition);
+                    animation.transitions[transition.target.name()] = animation.transitions[transition.target.name()] || [];
+                    animation.transitions[transition.target.name()].push(transition);
                 }
             }
         } 
     }
    
 }
+
 
 var initAnimations = function(){
     // Check artboards on all document pages
@@ -126,25 +127,35 @@ var initAnimations = function(){
                 if(animationName){
                     animations[animationName] = animations[animationName] || {};
                     animations[animationName].keyframes = animations[animationName].keyframes || [];
-                    animations[animationName].keyframes.push(layer);
+                    var keyframe = {
+                        layer: layer,
+                        timing: {
+                            duration: 500,
+                            delay: 0,
+                            easing: TWEEN.Easing.Elastic.Out 
+                        }
+                    }
+                    animations[animationName].keyframes.push(keyframe);
                     animations[animationName].keyframes.sort(function(a,b){
-                        if(a.name() < b.name()) return -1;
-                        if(a.name() > b.name()) return 1;
+                        if(a.layer.name() < b.layer.name()) return -1;
+                        if(a.layer.name() > b.layer.name()) return 1;
                         return 0;
                     })
                 }
             }
         }
     }
+    refreshAnimationTimelines();
     calculateTransitions();
 }
 
 
-var createTween = function(states, targetLayer, containerLayer) {
+var createTween = function(states, targetLayer, containerLayer, timing) {
     var layers = findLayerGroupsWithName(targetLayer.name(), containerLayer);
     var tween = new TWEEN.Tween(states.in)
-            .to(states.out, 800)
-            .easing( TWEEN.Easing.Elastic.InOut )
+            .to(states.out, timing.duration )
+            .easing( timing.easing )
+            .delay( timing.delay )
             .onUpdate(function(){   
                 for( var l=0; l < layers.length; l++){
                     var layer = layers[l];
@@ -155,7 +166,7 @@ var createTween = function(states, targetLayer, containerLayer) {
                     if(this.y){
                         frame.origin.y = this.y;
                     }
-                     if(this.height){
+                    if(this.height){
                         frame.size.height = this.height;
                     }
                     if(this.width){
@@ -198,7 +209,8 @@ var initTweens = function(animation, containerLayer){
             var tweens = [];
             for(var t=0; t < layerTransitions.length; t++){
                 var layerTransition = layerTransitions[t];
-                var tween = createTween(layerTransition.states, layerTransition.target, containerLayer);
+                var timing = animation.keyframes[t+1].timing;
+                var tween = createTween(layerTransition.states, layerTransition.target, containerLayer, timing);
                 tweens[t] = tween;
             }
             chainTweens(tweens);
@@ -228,18 +240,17 @@ var playAnimation = function(name, containerLayer){
         } 
     }
     // resize containerlayer to match first keyframe artboard
-    var keyframeFrame = targetAnimation.keyframes[0].rect();
+    var keyframeFrame = targetAnimation.keyframes[0].layer.rect();
     var containerFrame = containerLayer.rect();
     containerFrame.size = keyframeFrame.size;
     containerLayer.setRect(containerFrame);
     // Copy all top-level layer groups from first keyframe to containerlayer
-    var layers = targetAnimation.keyframes[0].layers();
+    var layers = targetAnimation.keyframes[0].layer.layers();
     for(var t=0; t < [layers count]; t++){
         var layer = layers.objectAtIndex(t);
         var layerCopy = [layer copy];
         containerLayer.addLayers([layerCopy]);
     }
-    log(targetAnimation);
     // create tweens
     initTweens(targetAnimation, containerLayer);
 }

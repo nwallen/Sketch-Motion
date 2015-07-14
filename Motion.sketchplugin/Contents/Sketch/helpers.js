@@ -15,3 +15,11 @@ var findLayerGroupsWithName = function(name, container){
 var checkForAnimationReference = function(layerName) {
     return layerName.match(/\{(\S+)\}/g);
 }
+
+var stripTagSymbols = function(string) {
+	return string.replace(/{|}/g, '');	
+}
+
+var animationTimelineName = function(animationName) {
+    return stripTagSymbols(animationName) + " timeline";
+}
