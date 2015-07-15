@@ -12,6 +12,22 @@ var findLayerGroupsWithName = function(name, container){
     return layers;
 }
 
+var filterLayersByName = function(name, layerSet){
+	var layers = [];
+	for(var l=0; l < [layerSet count]; l++){
+		var layer = layerSet.objectAtIndex(l);
+		var children = layer.children();
+	    for(var c=0; c < [children count]; c++){
+	        var child = children[c];
+	        if(child.name() == name){
+	            layers.push(layer);
+	            continue;
+	        }
+	    }
+	}
+    return layers;
+}
+
 var findTextWithName = function(name, container){
     var children = container.children();
     var layers = [];

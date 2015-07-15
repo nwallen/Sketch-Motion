@@ -2,39 +2,39 @@ var MSPERPIXEL = 1; // number of ms that each pixel on the timeline represents
 var TIMELINEHEIGHT = 60;
 
 var createTimelineSegment = function(x, y, width, height, index, transitionName, timelineArtboard){
-        // group
-        var group = timelineArtboard.addLayerOfType('group');
-        group.setName(transitionName);
-        // size & position
-        var groupFrame = group.rect();
-        groupFrame.origin.x = x;
-        groupFrame.origin.y = y;
-        groupFrame.size.width = width;
-        groupFrame.size.height = height;
-        group.setRect(groupFrame)
-        // rectangle
-        var rectangle = group.addLayerOfType('rectangle');
-        rectangle.setName('timelineSegment');
-        var rectangleFill = rectangle.style().fills().addNewStylePart();
-        rectangleFill.color = MSColor.colorWithSVGString('#FAFAFA');
-        var rectangleBorder = rectangle.style().borders().addNewStylePart();
-        rectangleBorder.color = MSColor.colorWithSVGString('#A6A6A6');
-        rectangleFrame = rectangle.rect();
-        rectangleFrame.size = group.rect().size;
-        rectangle.setRect(rectangleFrame);
-        // title text
-        var text = group.addLayerOfType('text');
-        text.setName('timelineSegmentTitle');
-        text.stringValue =  index + "";
-        text.fontPostscriptName = "HelveticaNeue-Bold";
-        text.fontSize = 45;
-        text.textColor = MSColor.colorWithSVGString('#A6A6A6');
-        text.textAlignment = 2;
-        textFrame = text.rect();
-        textFrame.size = group.rect().size;
-        text.setRect(textFrame);
+    // group
+    var group = timelineArtboard.addLayerOfType('group');
+    group.setName(transitionName);
+    // size & position
+    var groupFrame = group.rect();
+    groupFrame.origin.x = x;
+    groupFrame.origin.y = y;
+    groupFrame.size.width = width;
+    groupFrame.size.height = height;
+    group.setRect(groupFrame)
+    // rectangle
+    var rectangle = group.addLayerOfType('rectangle');
+    rectangle.setName('timelineSegment');
+    var rectangleFill = rectangle.style().fills().addNewStylePart();
+    rectangleFill.color = MSColor.colorWithSVGString('#FAFAFA');
+    var rectangleBorder = rectangle.style().borders().addNewStylePart();
+    rectangleBorder.color = MSColor.colorWithSVGString('#A6A6A6');
+    rectangleFrame = rectangle.rect();
+    rectangleFrame.size = group.rect().size;
+    rectangle.setRect(rectangleFrame);
+    // title text
+    var text = group.addLayerOfType('text');
+    text.setName('timelineSegmentTitle');
+    text.stringValue =  index + "";
+    text.fontPostscriptName = "HelveticaNeue-Bold";
+    text.fontSize = 45;
+    text.textColor = MSColor.colorWithSVGString('#A6A6A6');
+    text.textAlignment = 2;
+    textFrame = text.rect();
+    textFrame.size = group.rect().size;
+    text.setRect(textFrame);
 
-        return group;
+    return group;
 }
 
 var initTimelineArtboard = function(animationName, timelineArtboardName){
@@ -82,7 +82,7 @@ var initTimelineLegendArtboard = function(animationName, timelineArtboardName){
     updateTimelineLegend(animationName);        
 }
 
-var updateTimelineLegend = function(animationName) {
+var updateTimelineLegend = function(animationName){
     var animationKeyframes = animations[animationName].keyframes;
     var details = animations[animationName].timelineLegendArtboard.layers();
     var prevGroup = null;
@@ -124,16 +124,46 @@ var updateTimelineLegend = function(animationName) {
     }
 }
 
+var addTimelinePlayhead = function(animationName, segments){
+    var artboard = animations[animationName].timelineArtboard;
+    var rectangle = findShapeWithName('playhead', artboard)[0];
+    // add playhead
+    if(!rectangle){
+        rectangle = artboard.addLayerOfType('rectangle');
+        rectangle.frame().setWidth(2);
+        rectangle.frame().setX(0);
+        rectangle.setName('playhead');
+        var rectangleFill = rectangle.style().fills().addNewStylePart();
+        rectangleFill.color = MSColor.colorWithSVGString('#000000');
+    }
+    rectangle.frame().setHeight(artboard.frame().height());
+    var lastSegment = segments[segments.length-1];
+    var timelineEndX = lastSegment.frame().x() + lastSegment.frame().width();
+    animations[animationName].timelineTween = new TWEEN.Tween({x:0})
+            .to({x:timelineEndX} , (timelineEndX * MSPERPIXEL))
+            .onUpdate(function(){
+                rectangle.frame().setX(this.x);
+            })
+            .onComplete(function(){
+                rectangle.frame().setX(0);
+            });
+}
+
+var startPlayhead = function(animationName){
+    animations[animationName].timelineTween.start();
+}
+
 var updateTimeline = function(animationName) {
     var animationKeyframes = animations[animationName].keyframes;
     var segments = animations[animationName].timelineArtboard.layers();
+    segments = filterLayersByName('timelineSegment', segments);
     var prevSegment = null;
     // check for extra segments
-    if(segments.count() > (animationKeyframes.length-1)){
+    if(segments.length > (animationKeyframes.length-1)){
         // more segments than transitions -- delete extra
-        var delta =  segments.count() - (animationKeyframes.length-1);
+        var delta =  segments.length - (animationKeyframes.length-1);
         for(var d=0; d < delta; d++){
-            var segmentToDelete = segments.objectAtIndex(segments.count() - 1);
+            var segmentToDelete = segments[segments.length - 1];
             [segmentToDelete removeFromParent];
             animations[animationName].timelineArtboard.frame().setConstrainProportions(0);
             animations[animationName].timelineArtboard.frame().subtractWidth(500);
@@ -144,7 +174,7 @@ var updateTimeline = function(animationName) {
         var timing = keyframe.timing;
         var transitionName = getTransitionName(animationName, k-1, k);
         // update segments
-        if((k-1) > (segments.count() - 1)){
+        if((k-1) > (segments.length - 1)){
             // no segment -- add new segment
             var x = timing.delay / MSPERPIXEL;
             var y = 0;
@@ -161,7 +191,7 @@ var updateTimeline = function(animationName) {
         }
         else{
             // segment exists -- update animation config based on segment position
-            var segment = segments.objectAtIndex(k-1); // segment indexes are offset by 1
+            var segment = segments[k-1]; // segment indexes are offset by 1
             var newTiming = extractAnimationValues(prevSegment, segment);
             timing.delay = newTiming.delay;
             timing.duration = newTiming.duration;
@@ -171,6 +201,9 @@ var updateTimeline = function(animationName) {
             text[0].setFontSize(45);
             
         }
+    }
+    if(segments.length > 0){
+           addTimelinePlayhead(animationName, segments);
     }
 }
 
@@ -189,7 +222,7 @@ var extractAnimationValues = function(prev, current){
     return returnObj; 
 }
 
-var getAnimationValuesFromTimelineArtboard = function(animationName, timelineArtboardName) {
+var getAnimationValuesFromTimelineArtboard = function(animationName, timelineArtboardName){
     // find the relevant artboards
     var timelineArtboard = getArtboardsWithNameInDocument(timelineArtboardName);
     var timelineLegendArtboard = getArtboardsWithNameInDocument(getLegendName(animationName));
@@ -216,7 +249,7 @@ var unHighlightTimelineFrame = function(transitionName, animationName){
     }
 }
 
-var refreshAnimationTimeline = function(animationName) {
+var refreshAnimationTimeline = function(animationName){
     var timelineArtboardName = animationTimelineName(animationName);
     var timelineLegendArtboardName = getLegendName(animationName);
     //check for existing timeline artboard
@@ -230,9 +263,9 @@ var refreshAnimationTimeline = function(animationName) {
 }
 
 var refreshAnimationTimelines = function(){
-    for(var animationConfig in animations){
-        if(animations.hasOwnProperty(animationConfig)){
-            refreshAnimationTimeline(animationConfig);
+    for(var animationName in animations){
+        if(animations.hasOwnProperty(animationName)){
+            refreshAnimationTimeline(animationName);
         }
     }
 }

@@ -89,7 +89,7 @@ var compareKeyframes = function(inFrame, outFrame){
     return transitions;
 }
 
-var calculateTransitions = function() {
+var calculateTransitions = function(){
     for(var animationConfig in animations){
         if(animations.hasOwnProperty(animationConfig)){
             var animation = animations[animationConfig];
@@ -192,7 +192,6 @@ var createTween = function(states, targetLayer, containerLayer, timing, animatio
                         style.contextSettings().opacity = this.opacity;
                     }
                     layer.setStyle(style);
-                    doc.currentView().refresh();
                 }
             });
     return tween;
@@ -227,18 +226,20 @@ var initTweens = function(animation, containerLayer){
                 tweens[t] = tween;
             }
             chainTweens(tweens);
+            startPlayhead(animation.name);
         }
     }
 }
 
 var animate = function() {
     // run animation loop
-    [coscript scheduleWithRepeatingInterval:0.01666666 jsFunction:function(cinterval) {
-       TWEEN.update();
-       // kill loop when tweens are done
-       if(TWEEN.getAll().length == 0){
+    [coscript scheduleWithRepeatingInterval:0.01666666 jsFunction:function(cinterval){
+        TWEEN.update(Date.now());
+        doc.currentView().refresh();
+        // kill loop when tweens are done
+        if(TWEEN.getAll().length == 0){
             [cinterval cancel]
-       } 
+        } 
     }];
 }
 
