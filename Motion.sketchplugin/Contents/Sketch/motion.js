@@ -278,7 +278,7 @@ var playAnimations = function(context){
     }
     // requires user to select a single artboard
     if (artboards.length !== 1){
-        doc.showMessage("please select one artboard")
+        doc.showMessage("please select a single artboard")
         return;
     }
     else {
