@@ -90,9 +90,9 @@ var compareKeyframes = function(inFrame, outFrame){
 }
 
 var calculateTransitions = function(){
-    for(var animationConfig in animations){
-        if(animations.hasOwnProperty(animationConfig)){
-            var animation = animations[animationConfig];
+    for(var animationName in animations){
+        if(animations.hasOwnProperty(animationName)){
+            var animation = animations[animationName];
             var keyframeCount = animation.keyframes.length;
             var transitionCount = keyframeCount - 1;
             if(transitionCount === 0) continue;
