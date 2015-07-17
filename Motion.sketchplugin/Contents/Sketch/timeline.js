@@ -1,5 +1,7 @@
 var MSPERPIXEL = 1; // number of ms that each pixel on the timeline represents
 var TIMELINEHEIGHT = 60;
+var highlightedLegends = {};
+var highlightedSegments = {};
 
 var createTimelineSegment = function(x, y, width, height, index, transitionName, timelineArtboard){
     // group
@@ -94,7 +96,7 @@ var updateTimelineLegend = function(animationName){
             var detailToDelete = details.objectAtIndex(details.count() - 1);
             [detailToDelete removeFromParent];
             animations[animationName].timelineLegendArtboard.frame().setConstrainProportions(0);
-            animations[animationName].timelineLegendArtboard.frame().subtractHeight(100);
+            animations[animationName].timelineLegendArtboard.frame().subtractHeight(70);
         }
     }
     for( var k=1;k < animationKeyframes.length; k++){
@@ -106,6 +108,7 @@ var updateTimelineLegend = function(animationName){
             // no details -- add new detail set
             var detail = animations[animationName].timelineLegendArtboard.addLayerOfType('text');
             detail.stringValue =  k + ": " + transitionName + " / delay " + timing.delay + "ms / duration " + timing.duration + "ms";
+            detail.setName(transitionName);
             detail.fontSize = 30;
             detail.fontPostscriptName = "HelveticaNeue-Thin";
             detailFrame = detail.rect();
@@ -234,18 +237,48 @@ var getAnimationValuesFromTimelineArtboard = function(animationName, timelineArt
 }
 
 var highlightTimelineFrame = function(transitionName, animationName){
-    var artboard = animations[animationName].timelineArtboard;
-    var layers = findLayerGroupsWithName(transitionName, artboard);
-    if(layers[0]){
-         updateShapeFill('#76F6B3', 'timelineSegment', layers[0]);
+    if(!highlightedSegments[transitionName]){
+        var artboard = animations[animationName].timelineArtboard;
+        var layers = findLayerGroupsWithName(transitionName, artboard);
+        var shapes = findShapeWithName('timelineSegment', layers[0]);
+        if(shapes[0]){
+             updateShapeStyle({color:'#76F6B3'}, shapes[0]);
+             highlightedSegments[transitionName] = true;
+        }
     }
 }
 
 var unHighlightTimelineFrame = function(transitionName, animationName){
-    var artboard = animations[animationName].timelineArtboard;
-    var layers = findLayerGroupsWithName(transitionName, artboard);
-    if(layers[0]){
-        updateShapeFill('#FAFAFA', 'timelineSegment', layers[0]);
+    if(highlightedSegments[transitionName]){
+        var artboard = animations[animationName].timelineArtboard;
+        var layers = findLayerGroupsWithName(transitionName, artboard);
+        var shapes = findShapeWithName('timelineSegment', layers[0]);
+        if(shapes[0]){
+             updateShapeStyle({color:'#FAFAFA'}, shapes[0]);
+             highlightedSegments[transitionName] = false;
+        }
+    }
+}
+
+var highlightLegendName = function(transitionName, animationName){
+    if(!highlightedLegends[transitionName]){
+        var artboard = animations[animationName].timelineLegendArtboard;
+        var layers = findTextWithName(transitionName, artboard);
+        if(layers[0]){
+             updateTextStyle({color:'#76F6B3'}, layers[0]);
+             highlightedLegends[transitionName] = true;
+        }
+    }
+}
+
+var unHighlightLegendName = function(transitionName, animationName){
+    if(highlightedLegends[transitionName]){
+        var artboard = animations[animationName].timelineLegendArtboard;
+        var layers = findTextWithName(transitionName, artboard);
+        if(layers[0]){
+             updateTextStyle({color:'#000000'}, layers[0]);
+             highlightedLegends[transitionName] = null;
+        }
     }
 }
 

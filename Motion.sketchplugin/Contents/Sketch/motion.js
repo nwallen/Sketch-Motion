@@ -160,11 +160,13 @@ var createTween = function(states, targetLayer, containerLayer, timing, animatio
             .onStart(function(){
                 if(animationName && transitionName){
                     highlightTimelineFrame(transitionName, animationName);
+                    highlightLegendName(transitionName, animationName);
                 }
             })
             .onComplete(function(){
                 if(animationName && transitionName){
                     unHighlightTimelineFrame(transitionName, animationName);
+                    unHighlightLegendName(transitionName, animationName);
                 }
             })
             .onUpdate(function(){   

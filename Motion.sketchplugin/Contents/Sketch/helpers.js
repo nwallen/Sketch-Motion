@@ -103,12 +103,22 @@ var animationTimelineName = function(animationName) {
     return stripTagSymbols(animationName) + " timeline";
 }
 
-var updateShapeFill = function(HEX, layerName, container) {
-	var shapes = findShapeWithName(layerName, container);
-	var shapeFills = shapes[0].style().fills().array();
-	// shape has a fill
-	if(shapeFills[0]){
-		shapeFills[0].setColor(MSColor.colorWithSVGString(HEX));
+var updateShapeStyle = function(style, shape) {
+	if(style.color){
+		var shapeFills = shape.style().fills().array();
+		// shape has a fill
+		if(shapeFills[0]){
+			shapeFills[0].setColor(MSColor.colorWithSVGString(style.color));
+		}
+	}
+	
+}
+
+var updateTextStyle = function(style, text) {
+	if(text){
+		if(style.color){
+			text.textColor = MSColor.colorWithSVGString(style.color);
+		}
 	}
 	
 }
