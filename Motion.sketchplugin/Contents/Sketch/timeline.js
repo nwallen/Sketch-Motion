@@ -122,6 +122,7 @@ var updateTimelineLegend = function(animationName){
         }
         else {
             var detailToUpdate = details.objectAtIndex(k - 1);
+            detailToUpdate.setName(transitionName);
             detailToUpdate.stringValue = k + ": " + transitionName + " / delay " + timing.delay + "ms / duration " + timing.duration + "ms";
         }
     }
