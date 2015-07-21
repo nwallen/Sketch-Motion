@@ -1,5 +1,7 @@
 // useful functions
 
+// finding elements
+
 var findLayerGroupsWithName = function(name, container){
     var children = container.children();
     var layers = [];
@@ -83,6 +85,8 @@ var artboardWithNameExistsInDocument = function(layerName){
     return layerExists;
 }
 
+// naming functions
+
 var getLegendName = function(animationName){
 	return stripTagSymbols(animationName) + " detected transitions";
 }
@@ -103,6 +107,9 @@ var animationTimelineName = function(animationName) {
     return stripTagSymbols(animationName) + " timeline";
 }
 
+// working with styles
+// TODO: Add style get helpers
+
 var updateShapeStyle = function(style, shape) {
 	if(style.color){
 		var shapeFills = shape.style().fills().array();
@@ -111,6 +118,7 @@ var updateShapeStyle = function(style, shape) {
 			shapeFills[0].setColor(MSColor.colorWithSVGString(style.color));
 		}
 	}
+	// TODO: Add all other style properities
 	
 }
 
@@ -120,5 +128,5 @@ var updateTextStyle = function(style, text) {
 			text.textColor = MSColor.colorWithSVGString(style.color);
 		}
 	}
-	
+	// TODO: Add all other style properities
 }
