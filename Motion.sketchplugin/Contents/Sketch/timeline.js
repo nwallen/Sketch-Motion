@@ -70,7 +70,7 @@ var initTimelineLegendArtboard = function(animationName, timelineArtboardName){
     var timelineLegendArtboardName = getLegendName(animationName);
     timelineLegendArtboard.setName(timelineLegendArtboardName);
     var timelineLegendArtboardFrame = timelineLegendArtboard.rect();
-    timelineLegendArtboardFrame.size.width = 1000;
+    timelineLegendArtboardFrame.size.width = 1500;
     //timelineLegendArtboardFrame.size.height = animationKeyframes.length * 100;
     timelineLegendArtboardFrame.origin.x = keyframeFrame.origin.x;
     timelineLegendArtboardFrame.origin.y = keyframeFrame.origin.y + keyframeFrame.size.height + 300;
@@ -114,7 +114,7 @@ var updateTimelineLegend = function(animationName){
             detailFrame = detail.rect();
             detailFrame.origin.x = 20;
             detailFrame.origin.y = ((k-1) * 60) + 30;
-            detailFrame.size.width = 950;
+            detailFrame.size.width = 1450;
             detailFrame.size.height = 50;
             detail.setRect(detailFrame);
             animations[animationName].timelineLegendArtboard.frame().setConstrainProportions(0);
@@ -198,9 +198,11 @@ var updateTimeline = function(animationName) {
             var newTiming = extractAnimationValues(prevSegment, segment);
             timing.delay = newTiming.delay;
             timing.duration = newTiming.duration;
+            segment.setName(transitionName); 
             prevSegment = segment;
 
             var text = findTextWithName('timelineSegmentTitle', segment);
+            text[0].stringValue = k + "";
             text[0].setFontSize(45);
             
         }
