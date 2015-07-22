@@ -12,10 +12,18 @@
       "name" : "Animate",
       "identifier" : "playAnimations"
     },
+    {
+      "script" : "motion.js",
+      "handler" : "exportGIF",
+      "shortcut" : "cmd ctrl e",
+      "name" : "Export GIF",
+      "identifier" : "exportGIF"
+    }
   ],
   "menu": {
     "items": [
-      "playAnimations"
+      "playAnimations",
+      "exportGIF"
     ]
   }
 }

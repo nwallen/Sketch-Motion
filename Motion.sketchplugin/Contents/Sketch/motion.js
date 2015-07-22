@@ -3,9 +3,11 @@
 @import 'constants.js'
 @import 'helpers.js'
 @import 'timeline.js'
+@import 'gif.js'
 
 var doc;
 var selection;
+var selectedArtboard;
 var pluginPath;
 var animations = {};
 
@@ -253,6 +255,24 @@ var animate = function() {
     }];
 }
 
+var animateAndSaveGIF = function() {
+    log('animate and save!')
+    var animationTime = Date.now(); // current time
+    initGIFexport();
+    // run animation loop
+    [coscript scheduleWithRepeatingInterval:.0001 jsFunction:function(cinterval){
+        TWEEN.update(animationTime);
+        doc.currentView().refresh();
+        exportArtboardToGIFset(selectedArtboard)
+        animationTime += 160; // +160ms/frame = 60fps -- manually increment time for next loop so that we don't skip frames
+        // kill loop when tweens are done
+        if(TWEEN.getAll().length == 0){
+            [cinterval cancel]
+            createGIF();
+        } 
+    }];
+}
+
 var playAnimation = function(name, containerLayer){
     var targetAnimation = animations[name];
     // Clear target group(s) on selected artboard 
@@ -279,7 +299,7 @@ var playAnimation = function(name, containerLayer){
     initTweens(targetAnimation, containerLayer);
 }
 
-var playAnimations = function(context){
+var playAnimations = function(context, playAndExport){
     onStart(context);
     var artboards = [];
     for(var s=0; s < [selection count]; s++){
@@ -294,6 +314,7 @@ var playAnimations = function(context){
     }
     else {
         doc.showMessage("animating...")
+        selectedArtboard = artboards[0];
         // Find animation(s) referenced in selected artboard
         var artboardChildren = artboards[0].children();
         for(var l=0; l < [artboardChildren count]; l++){
@@ -306,8 +327,16 @@ var playAnimations = function(context){
                 }
             }
         }
-        animate();
+        if(playAndExport){
+            animateAndSaveGIF();
+        }
+        else {
+            animate();
+        }
     }
 }
 
+var exportGIF = function(context){
+    playAnimations(context, true);
+}
 
