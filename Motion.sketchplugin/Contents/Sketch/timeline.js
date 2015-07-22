@@ -1,5 +1,4 @@
-var MSPERPIXEL = 1; // number of ms that each pixel on the timeline represents
-var TIMELINEHEIGHT = 60;
+// Manage timeline UI element
 var highlightedLegends = {};
 var highlightedSegments = {};
 
@@ -8,12 +7,12 @@ var createTimelineSegment = function(x, y, width, height, index, transitionName,
     var group = timelineArtboard.addLayerOfType('group');
     group.setName(transitionName);
     // size & position
-    var groupFrame = group.rect();
-    groupFrame.origin.x = x;
-    groupFrame.origin.y = y;
-    groupFrame.size.width = width;
-    groupFrame.size.height = height;
-    group.setRect(groupFrame)
+    updateFrame({
+        x : x,
+        y : y,
+        width : width,
+        height : height
+    }, group);
     // rectangle
     var rectangle = group.addLayerOfType('rectangle');
     rectangle.setName('timelineSegment');
@@ -70,8 +69,8 @@ var initTimelineLegendArtboard = function(animationName, timelineArtboardName){
     var timelineLegendArtboardName = getLegendName(animationName);
     timelineLegendArtboard.setName(timelineLegendArtboardName);
     var timelineLegendArtboardFrame = timelineLegendArtboard.rect();
-    timelineLegendArtboardFrame.size.width = 1500;
-    //timelineLegendArtboardFrame.size.height = animationKeyframes.length * 100;
+    timelineLegendArtboardFrame.size.width = LEGENDLAYOUT.rowWidth + (LEGENDLAYOUT.margin * 3);
+    timelineLegendArtboardFrame.size.height = LEGENDLAYOUT.margin;
     timelineLegendArtboardFrame.origin.x = keyframeFrame.origin.x;
     timelineLegendArtboardFrame.origin.y = keyframeFrame.origin.y + keyframeFrame.size.height + 300;
     timelineLegendArtboard.setRect(timelineLegendArtboardFrame);
@@ -85,9 +84,11 @@ var initTimelineLegendArtboard = function(animationName, timelineArtboardName){
 }
 
 var updateTimelineLegend = function(animationName){
+     //log(pluginPath + RESOURCESPATH + ANIMATIONCURVEFILENAME);
     var animationKeyframes = animations[animationName].keyframes;
     var details = animations[animationName].timelineLegendArtboard.layers();
     var prevGroup = null;
+
     // check for extra details
     if(details.count() > (animationKeyframes.length-1)){
         // more details than transitions -- delete extra
@@ -96,7 +97,7 @@ var updateTimelineLegend = function(animationName){
             var detailToDelete = details.objectAtIndex(details.count() - 1);
             [detailToDelete removeFromParent];
             animations[animationName].timelineLegendArtboard.frame().setConstrainProportions(0);
-            animations[animationName].timelineLegendArtboard.frame().subtractHeight(70);
+            animations[animationName].timelineLegendArtboard.frame().subtractHeight(LEGENDLAYOUT.easeTileHeight + LEGENDLAYOUT.margin);
         }
     }
     for( var k=1;k < animationKeyframes.length; k++){
@@ -106,24 +107,51 @@ var updateTimelineLegend = function(animationName){
         // update details
         if((k-1) > (details.count() - 1)){
             // no details -- add new detail set
-            var detail = animations[animationName].timelineLegendArtboard.addLayerOfType('text');
-            detail.stringValue =  k + ": " + transitionName + " / delay " + timing.delay + "ms / duration " + timing.duration + "ms";
+            var group = animations[animationName].timelineLegendArtboard.addLayerOfType('group');
+            updateFrame({
+                x : LEGENDLAYOUT.margin,
+                y : ((k-1) * (LEGENDLAYOUT.easeTileHeight + LEGENDLAYOUT.margin)) + LEGENDLAYOUT.margin,
+                width : LEGENDLAYOUT.rowWidth,
+                height : LEGENDLAYOUT.easeTileHeight
+            }, group);
+            group.setName (transitionName);
+
+            var detail = group.addLayerOfType('text');
             detail.setName(transitionName);
-            detail.fontSize = 30;
-            detail.fontPostscriptName = "HelveticaNeue-Thin";
-            detailFrame = detail.rect();
-            detailFrame.origin.x = 20;
-            detailFrame.origin.y = ((k-1) * 60) + 30;
-            detailFrame.size.width = 1450;
-            detailFrame.size.height = 50;
-            detail.setRect(detailFrame);
+            detail.stringValue =  k + ": " + transitionName + "\ndelay " + timing.delay + "ms / duration " + timing.duration + "ms";
+            updateTextStyle({
+                font: "HelveticaNeue-Bold",
+                size: 30
+            }, detail)
+            updateFrame({
+                x : LEGENDLAYOUT.easeTileWidth + LEGENDLAYOUT.margin,
+                y : LEGENDLAYOUT.easeTileHeight * .25,
+                width : LEGENDLAYOUT.rowWidth - LEGENDLAYOUT.easeTileWidth - (LEGENDLAYOUT.margin * 3)
+            }, detail);
+
+            var curve = group.addLayerOfType('group');
+            curve.setName('curve');
+
+            var curveMask = curve.addLayerOfType('rectangle');
+            curveMask.setName('curveMask');
+            updateFrame({
+               width : LEGENDLAYOUT.easeTileWidth,
+               height : LEGENDLAYOUT.easeTileHeight
+            }, curveMask);
+            curveMask.setHasClippingMask(true);
+
+            var imagePath = pluginPath + RESOURCESPATH + ANIMATIONCURVEFILENAME;
+            var image = addImage(imagePath, curve, "curve");
+
             animations[animationName].timelineLegendArtboard.frame().setConstrainProportions(0);
-            animations[animationName].timelineLegendArtboard.frame().addHeight(70);
+            animations[animationName].timelineLegendArtboard.frame().addHeight(LEGENDLAYOUT.easeTileHeight + LEGENDLAYOUT.margin)
+
         }
         else {
             var detailToUpdate = details.objectAtIndex(k - 1);
             detailToUpdate.setName(transitionName);
-            detailToUpdate.stringValue = k + ": " + transitionName + " / delay " + timing.delay + "ms / duration " + timing.duration + "ms";
+            var textToUpdate = findTextWithName(transitionName, detailToUpdate);
+            textToUpdate[0].stringValue =  k + ": " + transitionName + "\ndelay " + timing.delay + "ms / duration " + timing.duration + "ms";
         }
     }
 }

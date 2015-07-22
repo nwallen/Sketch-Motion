@@ -1,10 +1,12 @@
 @import 'common.js'
 @import 'Tween.js'
+@import 'constants.js'
 @import 'helpers.js'
 @import 'timeline.js'
 
 var doc;
 var selection;
+var pluginPath;
 var animations = {};
 
 var onStart = function(context){
@@ -12,6 +14,11 @@ var onStart = function(context){
     [[COScript currentCOScript] setShouldKeepAround:true]
     doc = context.document;
     selection = context.selection;
+    var scriptPath = context.scriptPath;
+    var pluginFolder = scriptPath.match(/Plugins\/([\w -])*/)[0] + "/";
+    var basePath = scriptPath.split("Plugins")[0];
+    pluginPath = basePath + pluginFolder
+
     // Find animation artboards (keyframes)
     initAnimations();
 }

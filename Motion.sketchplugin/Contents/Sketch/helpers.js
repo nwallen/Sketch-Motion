@@ -110,6 +110,21 @@ var animationTimelineName = function(animationName) {
 // working with styles
 // TODO: Add style get helpers
 
+var updateFrame = function(frame, layer) {
+	if(frame.width){
+		layer.frame().setWidth(frame.width);
+	}
+	if(frame.height){
+		layer.frame().setHeight(frame.height);
+	}
+	if(frame.x){
+		layer.frame().setX(frame.x);
+	}
+	if(frame.y){
+		layer.frame().setY(frame.y);
+	}
+}
+
 var updateShapeStyle = function(style, shape) {
 	if(style.color){
 		var shapeFills = shape.style().fills().array();
@@ -123,10 +138,58 @@ var updateShapeStyle = function(style, shape) {
 }
 
 var updateTextStyle = function(style, text) {
-	if(text){
+	if(text &&  text.isMemberOfClass(MSTextLayer)){
 		if(style.color){
 			text.textColor = MSColor.colorWithSVGString(style.color);
 		}
+		if(style.size){
+			text.fontSize = style.size;
+		}
+		if(style.font){
+			text.fontPostscriptName = style.font;
+		}
 	}
 	// TODO: Add all other style properities
+}
+
+function addImage (imagePath, container, name) {
+	var image = [[NSImage alloc] initWithContentsOfFile:imagePath]; 
+	var layerName = name || "image";
+	var imageLayer = [MSBitmapLayer new];
+	container.addLayers([imageLayer]);
+
+	imageLayer.setConstrainProportions(false);
+	imageLayer.setRawImage_convertColourspace_collection(image, false, doc.documentData().images());
+	imageLayer.setName(name);
+	imageLayer.frame().setWidth(image.size().width);
+	imageLayer.frame().setHeight(image.size().height);
+	imageLayer.setConstrainProportions(true);
+}
+
+
+// Only used for debugging. Very helpful for object introspection
+// https://github.com/tylergaw/day-player/blob/master/lib/utils.js
+function dump (obj) {
+	log("#####################################################################################")
+	log("## Dumping object " + obj )
+	log("## obj class is: " + [obj className])
+	log("#####################################################################################")
+	log("obj.properties:")
+	log([obj class].mocha().properties())
+	log("obj.propertiesWithAncestors:")
+	log([obj class].mocha().propertiesWithAncestors())
+	log("obj.classMethods:")
+	log([obj class].mocha().classMethods())
+	log("obj.classMethodsWithAncestors:")
+	log([obj class].mocha().classMethodsWithAncestors())
+	log("obj.instanceMethods:")
+	log([obj class].mocha().instanceMethods())
+	log("obj.instanceMethodsWithAncestors:")
+	log([obj class].mocha().instanceMethodsWithAncestors())
+	log("obj.protocols:")
+	log([obj class].mocha().protocols())
+	log("obj.protocolsWithAncestors:")
+	log([obj class].mocha().protocolsWithAncestors())
+	log("obj.treeAsDictionary():")
+	log(obj.treeAsDictionary())
 }
