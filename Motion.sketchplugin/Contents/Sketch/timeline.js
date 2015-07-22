@@ -84,11 +84,9 @@ var initTimelineLegendArtboard = function(animationName, timelineArtboardName){
 }
 
 var updateTimelineLegend = function(animationName){
-     //log(pluginPath + RESOURCESPATH + ANIMATIONCURVEFILENAME);
     var animationKeyframes = animations[animationName].keyframes;
     var details = animations[animationName].timelineLegendArtboard.layers();
     var prevGroup = null;
-
     // check for extra details
     if(details.count() > (animationKeyframes.length-1)){
         // more details than transitions -- delete extra
@@ -107,29 +105,42 @@ var updateTimelineLegend = function(animationName){
         // update details
         if((k-1) > (details.count() - 1)){
             // no details -- add new detail set
-            var group = animations[animationName].timelineLegendArtboard.addLayerOfType('group');
+            var detail = animations[animationName].timelineLegendArtboard.addLayerOfType('group');
             updateFrame({
                 x : LEGENDLAYOUT.margin,
                 y : ((k-1) * (LEGENDLAYOUT.easeTileHeight + LEGENDLAYOUT.margin)) + LEGENDLAYOUT.margin,
                 width : LEGENDLAYOUT.rowWidth,
                 height : LEGENDLAYOUT.easeTileHeight
-            }, group);
-            group.setName (transitionName);
-
-            var detail = group.addLayerOfType('text');
-            detail.setName(transitionName);
-            detail.stringValue =  k + ": " + transitionName + "\ndelay " + timing.delay + "ms / duration " + timing.duration + "ms";
+            }, detail);
+            detail.setName (transitionName);
+            
+            var index = detail.addLayerOfType('text');
+            index.setName('animationIndex')
+            index.stringValue = k + '';
             updateTextStyle({
                 font: "HelveticaNeue-Bold",
-                size: 30
-            }, detail)
+                size: 35
+            }, index)
             updateFrame({
                 x : LEGENDLAYOUT.easeTileWidth + LEGENDLAYOUT.margin,
-                y : LEGENDLAYOUT.easeTileHeight * .25,
+                y : 0,
                 width : LEGENDLAYOUT.rowWidth - LEGENDLAYOUT.easeTileWidth - (LEGENDLAYOUT.margin * 3)
-            }, detail);
+            }, index);
 
-            var curve = group.addLayerOfType('group');
+            var info = detail.addLayerOfType('text');
+            info.setName('animationInfo');
+            info.stringValue = transitionName + "\ndelay " + timing.delay + "ms / duration " + timing.duration + "ms";
+            updateTextStyle({
+                font: "HelveticaNeue-Thin",
+                size: 30
+            }, info)
+            updateFrame({
+                x : LEGENDLAYOUT.easeTileWidth + LEGENDLAYOUT.margin,
+                y : LEGENDLAYOUT.easeTileHeight * .40,
+                width : LEGENDLAYOUT.rowWidth - LEGENDLAYOUT.easeTileWidth - (LEGENDLAYOUT.margin * 3)
+            }, info);
+
+            var curve = detail.addLayerOfType('group');
             curve.setName('curve');
 
             var curveMask = curve.addLayerOfType('rectangle');
@@ -145,15 +156,13 @@ var updateTimelineLegend = function(animationName){
 
             animations[animationName].timelineLegendArtboard.frame().setConstrainProportions(0);
             animations[animationName].timelineLegendArtboard.frame().addHeight(LEGENDLAYOUT.easeTileHeight + LEGENDLAYOUT.margin)
-
         }
         else {
             var detailToUpdate = details.objectAtIndex(k - 1);
             detailToUpdate.setName(transitionName);
-            var textToUpdate = findTextWithName(transitionName, detailToUpdate)[0];
+            var textToUpdate = findTextWithName('animationInfo', detailToUpdate)[0];
             if(textToUpdate){
-                textToUpdate.setName(transitionName);
-                textToUpdate.stringValue =  k + ": " + transitionName + "\ndelay " + timing.delay + "ms / duration " + timing.duration + "ms";   
+                textToUpdate.stringValue = transitionName + "\ndelay " + timing.delay + "ms / duration " + timing.duration + "ms";   
             }
             var imageToUpdate = findImageWithName(getCurveSelectorName(transitionName), detailToUpdate)[0];
             if(imageToUpdate){
@@ -189,7 +198,7 @@ var addTimelinePlayhead = function(animationName, segments){
                 rectangle.frame().setX(this.x);
             })
             .onComplete(function(){
-                rectangle.frame().setX(0);
+                rectangle.removeFromParent();
             });
 }
 
@@ -209,6 +218,7 @@ var updateTimeline = function(animationName) {
         for(var d=0; d < delta; d++){
             var segmentToDelete = segments[segments.length - 1];
             [segmentToDelete removeFromParent];
+            segments.pop();
             animations[animationName].timelineArtboard.frame().setConstrainProportions(0);
             animations[animationName].timelineArtboard.frame().subtractWidth(500);
         }
@@ -326,9 +336,10 @@ var unHighlightTimelineFrame = function(transitionName, animationName){
 var highlightLegendName = function(transitionName, animationName){
     if(!highlightedLegends[transitionName]){
         var artboard = animations[animationName].timelineLegendArtboard;
-        var layers = findTextWithName(transitionName, artboard);
-        if(layers[0]){
-             updateTextStyle({color:'#76F6B3'}, layers[0]);
+        var layers = findLayerGroupsWithName(transitionName, artboard);
+        var text = findTextWithName('animationInfo', layers[0]);
+        if(text[0]){
+             updateTextStyle({color:'#76F6B3'}, text[0]);
              highlightedLegends[transitionName] = true;
         }
     }
@@ -337,9 +348,10 @@ var highlightLegendName = function(transitionName, animationName){
 var unHighlightLegendName = function(transitionName, animationName){
     if(highlightedLegends[transitionName]){
         var artboard = animations[animationName].timelineLegendArtboard;
-        var layers = findTextWithName(transitionName, artboard);
-        if(layers[0]){
-             updateTextStyle({color:'#000000'}, layers[0]);
+        var layers = findLayerGroupsWithName(transitionName, artboard);
+        var text = findTextWithName('animationInfo', layers[0]);
+        if(text[0]){
+             updateTextStyle({color:'#000000'}, text[0]);
              highlightedLegends[transitionName] = null;
         }
     }
