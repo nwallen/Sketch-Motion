@@ -141,7 +141,7 @@ var updateTimelineLegend = function(animationName){
             curveMask.setHasClippingMask(true);
 
             var imagePath = pluginPath + RESOURCESPATH + ANIMATIONCURVEFILENAME;
-            var image = addImage(imagePath, curve, "curve");
+            var image = addImage(imagePath, curve, getCurveSelectorName(transitionName));
 
             animations[animationName].timelineLegendArtboard.frame().setConstrainProportions(0);
             animations[animationName].timelineLegendArtboard.frame().addHeight(LEGENDLAYOUT.easeTileHeight + LEGENDLAYOUT.margin)
@@ -229,7 +229,17 @@ var updateTimeline = function(animationName) {
             timing.duration = newTiming.duration;
             segment.setName(transitionName); 
             prevSegment = segment;
+            // also update easing curves if legend board is populated
+            if(animations[animationName].timelineLegendArtboard && animations[animationName].timelineLegendArtboard.layers().count() > 0){
+                var easing = extractEasingCurve(transitionName, animationName);
+                log(easing);
+                if(easing){
 
+                    timing.easing = easing;
+                }
+            }
+
+            // resizing timeline segments messes up text size
             var text = findTextWithName('timelineSegmentTitle', segment);
             text[0].stringValue = k + "";
             text[0].setFontSize(45);
@@ -239,6 +249,17 @@ var updateTimeline = function(animationName) {
     if(segments.length > 0){
            addTimelinePlayhead(animationName, segments);
     }
+}
+
+var extractEasingCurve = function(transitionName, animationName){
+    var artboard = animations[animationName].timelineLegendArtboard;
+    var imageLayers = findImageWithName(getCurveSelectorName(transitionName), artboard);
+    if(imageLayers[0]){
+        var selectorX =  imageLayers[0].frame().x();
+        var selectorIndex = Math.abs(Math.round(selectorX/LEGENDLAYOUT.easeTileWidth));
+        return ANIMATIONCURVEOPTIONS[selectorIndex].ease
+    }
+   
 }
 
 var extractAnimationValues = function(prev, current){

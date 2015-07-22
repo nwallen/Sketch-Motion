@@ -42,6 +42,18 @@ var findTextWithName = function(name, container){
     return layers;
 }
 
+var findImageWithName = function(name, container){
+    var children = container.children();
+    var layers = [];
+    for(var c=0; c < [children count]; c++){
+        var child = children[c];
+        if(child.name() == name && child.isMemberOfClass(MSBitmapLayer)){
+            layers.push(child);
+        }
+    }
+    return layers;
+}
+
 var findShapeWithName = function(name, container){
     var children = container.children();
     var layers = [];
@@ -93,6 +105,10 @@ var getLegendName = function(animationName){
 
 var getTransitionName = function(animationName, startKeyframeIndex, endKeyframeIndex){
 	return stripTagSymbols(animations[animationName].keyframes[startKeyframeIndex].layer.name()) + " > " + stripTagSymbols(animations[animationName].keyframes[endKeyframeIndex].layer.name());
+}
+
+var getCurveSelectorName = function(transitionName){
+	return transitionName + " curveSelector";
 }
 
 var checkForAnimationReference = function(layerName) {
