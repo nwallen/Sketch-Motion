@@ -140,7 +140,8 @@ var initAnimations = function(){
                         timing: {
                             duration: 500,
                             delay: 0,
-                            easing: undefined
+                            easingIndex: 0,
+                            easing: TWEEN.Easing.Linear.None
                         }
                     }
                     animations[animationName].keyframes.push(keyframe);

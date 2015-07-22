@@ -4,8 +4,8 @@ var RESOURCESPATH =  "Motion.sketchplugin/Resources/";
 var LEGENDLAYOUT = {
 	easeTileHeight : 125,
 	easeTileWidth : 125,
-	margin: 30,
-	rowWidth: 1500,
+	margin: 60,
+	rowWidth: 1000,
 	textHeight: 50,
 };
 

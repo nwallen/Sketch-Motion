@@ -1,4 +1,4 @@
-// Manage timeline UI element
+// Manage timeline UI elements
 var highlightedLegends = {};
 var highlightedSegments = {};
 
@@ -150,8 +150,20 @@ var updateTimelineLegend = function(animationName){
         else {
             var detailToUpdate = details.objectAtIndex(k - 1);
             detailToUpdate.setName(transitionName);
-            var textToUpdate = findTextWithName(transitionName, detailToUpdate);
-            textToUpdate[0].stringValue =  k + ": " + transitionName + "\ndelay " + timing.delay + "ms / duration " + timing.duration + "ms";
+            var textToUpdate = findTextWithName(transitionName, detailToUpdate)[0];
+            if(textToUpdate){
+                textToUpdate.setName(transitionName);
+                textToUpdate.stringValue =  k + ": " + transitionName + "\ndelay " + timing.delay + "ms / duration " + timing.duration + "ms";   
+            }
+            var imageToUpdate = findImageWithName(getCurveSelectorName(transitionName), detailToUpdate)[0];
+            if(imageToUpdate){
+                imageToUpdate.setName(getCurveSelectorName(transitionName));
+                updateFrame({
+                    x: -(LEGENDLAYOUT.easeTileWidth * timing.easingIndex) + 1,
+                    y:1
+                }, imageToUpdate)
+            }
+
         }
     }
 }
@@ -231,11 +243,10 @@ var updateTimeline = function(animationName) {
             prevSegment = segment;
             // also update easing curves if legend board is populated
             if(animations[animationName].timelineLegendArtboard && animations[animationName].timelineLegendArtboard.layers().count() > 0){
-                var easing = extractEasingCurve(transitionName, animationName);
-                log(easing);
-                if(easing){
-
-                    timing.easing = easing;
+                var extractedEasing = extractEasingCurve(transitionName, animationName);
+                if(extractedEasing){
+                    timing.easing = extractedEasing.ease;
+                    timing.easingIndex = extractedEasing.easingIndex;
                 }
             }
 
@@ -257,7 +268,7 @@ var extractEasingCurve = function(transitionName, animationName){
     if(imageLayers[0]){
         var selectorX =  imageLayers[0].frame().x();
         var selectorIndex = Math.abs(Math.round(selectorX/LEGENDLAYOUT.easeTileWidth));
-        return ANIMATIONCURVEOPTIONS[selectorIndex].ease
+        return { easingIndex: selectorIndex, ease:ANIMATIONCURVEOPTIONS[selectorIndex].ease }
     }
    
 }
