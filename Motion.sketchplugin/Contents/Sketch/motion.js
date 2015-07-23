@@ -244,10 +244,13 @@ var initTweens = function(animation, containerLayer){
 }
 
 var animate = function() {
+    var animationTime = Date.now(); // current time
+    var fps = 60;
     // run animation loop
-    [coscript scheduleWithRepeatingInterval:0.01666666 jsFunction:function(cinterval){
-        TWEEN.update(Date.now());
+    [coscript scheduleWithRepeatingInterval:(1/fps) jsFunction:function(cinterval){
+        TWEEN.update(animationTime);
         doc.currentView().refresh();
+        animationTime += 1000/fps;// 1000/fps = ms/frame -- manually increment time to match fps
         // kill loop when tweens are done
         if(TWEEN.getAll().length == 0){
             [cinterval cancel]
