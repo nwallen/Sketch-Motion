@@ -29,7 +29,6 @@ var exportArtboardToGIFset = function(artboard){
 }
 
 var createGIF = function(fps, loops) {
-	log(loops);
 	var loop = "-l";
 	if(loops > 1 ) loop += (loops - 1)
 	if(loops == 1 ) loop = "" 
