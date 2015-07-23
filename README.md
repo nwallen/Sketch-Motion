@@ -19,10 +19,12 @@ Early proof-of-concept version tested in sketch 3.3.3 -- use at your own risk
  - You may freely add and remove tagged artboards -- the plugin will adjust
 
 **Create Transitions**
-- Animation transitions are automatically created by comparing groups **with the same name** between tagged artboards
-- Differences in these properties are animated :`position` `size` `rotation` `opacity`
-- The name of the group does not matter -- just that it is identical on all tagged artboards
+- Animation transitions are automatically created by comparing groups **with the same name** on tagged artboards
+- Differences in these properties are animated : `position` `size` `rotation` `opacity`
+- The name of the group does not matter -- just that it is the same on all tagged artboards
 - Multiple groups with the same name on the same artboard are automatically given a unique name
+- The group must exist on the first artboard -- otherwise it will not be included in the animation
+
 
 **Add a Player & Preview Animations**
 - Animations are played via "players". Create a player by tagging a group with the name of the animation you would like to play: e.g. renaming `myGroup ▸ myGroup {loader}` creates a player for the "loader" animation
