@@ -256,19 +256,18 @@ var animate = function() {
 }
 
 var animateAndSaveGIF = function() {
-    log('animate and save!')
     var animationTime = Date.now(); // current time
+    var fps = fpsDialog() || 30;
     initGIFexport();
-    // run animation loop
-    [coscript scheduleWithRepeatingInterval:.0001 jsFunction:function(cinterval){
+    [coscript scheduleWithRepeatingInterval:(1/fps) jsFunction:function(cinterval){
         TWEEN.update(animationTime);
         doc.currentView().refresh();
         exportArtboardToGIFset(selectedArtboard)
-        animationTime += 160; // +160ms/frame = 60fps -- manually increment time for next loop so that we don't skip frames
+        animationTime += 1000/fps; // 1000/fps = ms/frame -- manually increment time to match fps
         // kill loop when tweens are done
         if(TWEEN.getAll().length == 0){
             [cinterval cancel]
-            createGIF();
+            createGIF(fps);
         } 
     }];
 }

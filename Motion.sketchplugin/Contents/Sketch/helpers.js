@@ -182,6 +182,16 @@ function addImage (imagePath, container, name) {
 	imageLayer.setConstrainProportions(true);
 }
 
+// number padding
+
+function numberPad(number, padding) {
+    var output = number + '';
+    while (output.length < padding) {
+        output = '0' + output;
+    }
+    return output;
+}
+
 
 // Only used for debugging. Very helpful for object introspection
 // https://github.com/tylergaw/day-player/blob/master/lib/utils.js

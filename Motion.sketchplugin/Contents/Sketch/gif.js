@@ -7,7 +7,6 @@ var gifFileManager;
 //var exportDebugPath;
 
 var initGIFexport = function() {
-	log('init GIF')
 	gifx = pluginPath + "GIFX";
 	gifPath = savePath();
 	tempPath = NSTemporaryDirectory();
@@ -23,21 +22,20 @@ var initGIFexport = function() {
 
 var exportArtboardToGIFset = function(artboard){
 	var artboardName = artboard.name();
-	var gifFileComponent = gifSetIndex + ".png";
+	var gifFileComponent = numberPad(gifSetIndex, 8) + ".png";
     var fileName = [gifsetPath stringByAppendingPathComponent: gifFileComponent]
-    log(fileName);
     [doc saveArtboardOrSlice:artboard toFile:fileName]
-    var debug = exportDebugPath + gifFileComponent
-    [doc saveArtboardOrSlice:artboard toFile:debug] 
     gifSetIndex ++;
 }
 
-var createGIF = function() {
-	log('createGIF')
+var createGIF = function(fps) {
+	var delay = Math.round((1000/fps) / 10)
 	var convertTask = [[NSTask alloc] init]
     var createsTask = [[NSTask alloc] init]
     var convertGIF = "find \"" + gifsetPath + "\" -name '*.png' -exec sips -s format gif -o {}.gif {} \\;"
-    var option = "find \"" + gifsetPath + "\" -name '*.png.gif' -execdir bash -c '\"" + gifx + "\" -l -d 100 '*.png.gif' -o \"" + gifPath + "\"' \\;"
+    var option = "find \"" + gifsetPath + "\" -name '*.png.gif' -execdir bash -c '\"" + gifx + "\" -l -d " +  delay + " '*.png.gif' -o \"" + gifPath + "\"' \\;"
+
+    [doc showMessage:@"Saving GIF..."]
 
     [convertTask setLaunchPath:@"/bin/bash"]
     [convertTask setArguments:["-c", convertGIF]]
@@ -63,6 +61,19 @@ var createGIF = function() {
     } 
  
     [gifFileManager removeItemAtPath:gifsetPath error:nil]  
+}
+
+var fpsDialog = function(){
+	var alert = COSAlertWindow.new();
+	alert.setMessageText("Enter desired GIF framerate (FPS)");
+	alert.setInformativeText("higher is smoother, but exports a larger file");
+	// FPS
+	alert.addTextLabelWithValue("Export FPS");
+	alert.addTextFieldWithValue("30");
+
+	alert.runModal();
+
+	return parseInt(alert.viewAtIndex(1).stringValue())
 }
 
 var savePath =  function() {
