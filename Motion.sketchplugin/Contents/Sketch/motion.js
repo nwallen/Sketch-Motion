@@ -260,7 +260,9 @@ var animate = function() {
 
 var animateAndSaveGIF = function() {
     var animationTime = Date.now(); // current time
-    var fps = fpsDialog() || 30;
+    var exportOptions = exportOptionsDialog();
+    var fps = exportOptions.fps || 30;
+    var loops = exportOptions.loops;
     initGIFexport();
     [coscript scheduleWithRepeatingInterval:(1/fps) jsFunction:function(cinterval){
         TWEEN.update(animationTime);
@@ -270,7 +272,7 @@ var animateAndSaveGIF = function() {
         // kill loop when tweens are done
         if(TWEEN.getAll().length == 0){
             [cinterval cancel]
-            createGIF(fps);
+            createGIF(fps, loops);
         } 
     }];
 }

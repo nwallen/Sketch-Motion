@@ -28,12 +28,16 @@ var exportArtboardToGIFset = function(artboard){
     gifSetIndex ++;
 }
 
-var createGIF = function(fps) {
+var createGIF = function(fps, loops) {
+	log(loops);
+	var loop = "-l";
+	if(loops > 1 ) loop += (loops - 1)
+	if(loops == 1 ) loop = "" 
 	var delay = Math.round((1000/fps) / 10)
 	var convertTask = [[NSTask alloc] init]
     var createsTask = [[NSTask alloc] init]
     var convertGIF = "find \"" + gifsetPath + "\" -name '*.png' -exec sips -s format gif -o {}.gif {} \\;"
-    var option = "find \"" + gifsetPath + "\" -name '*.png.gif' -execdir bash -c '\"" + gifx + "\" -l -d " +  delay + " '*.png.gif' -o \"" + gifPath + "\"' \\;"
+    var option = "find \"" + gifsetPath + "\" -name '*.png.gif' -execdir bash -c '\"" + gifx + "\" " + loop + " -d " +  delay + " '*.png.gif' -o \"" + gifPath + "\"' \\;"
 
     [doc showMessage:@"Saving GIF..."]
 
@@ -63,17 +67,23 @@ var createGIF = function(fps) {
     [gifFileManager removeItemAtPath:gifsetPath error:nil]  
 }
 
-var fpsDialog = function(){
+var exportOptionsDialog = function(){
 	var alert = COSAlertWindow.new();
-	alert.setMessageText("Enter desired GIF framerate (FPS)");
-	alert.setInformativeText("higher is smoother, but exports a larger file");
+	alert.setMessageText("GIF export options");
 	// FPS
-	alert.addTextLabelWithValue("Export FPS");
+	alert.addTextLabelWithValue("Framerate (FPS)");
 	alert.addTextFieldWithValue("30");
+	alert.addTextLabelWithValue("higher is smoother, but exports a larger file");
+	alert.addTextLabelWithValue("");
+	// Loops
+	alert.addTextLabelWithValue("Number of Loops");
+	alert.addTextFieldWithValue("0");
+	alert.addTextLabelWithValue("enter 0 to loop FOREVER");
+	alert.addTextLabelWithValue("");
 
 	alert.runModal();
 
-	return parseInt(alert.viewAtIndex(1).stringValue())
+	return { fps: parseInt(alert.viewAtIndex(1).stringValue()), loops: parseInt(alert.viewAtIndex(5).stringValue()) }
 }
 
 var savePath =  function() {
