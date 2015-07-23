@@ -71,8 +71,8 @@ var compareLayerProperties = function(inFrameLayer, outFrameLayer){
 
 var compareKeyframes = function(inFrame, outFrame){
     var transitions = [];
-    var inFrameLayers = inFrame.children();
-    var outFrameLayers = outFrame.children();
+    var inFrameLayers = deDupeGroupNames(inFrame);
+    var outFrameLayers = deDupeGroupNames(outFrame);
     for(var l=0; l < [inFrameLayers count]; l++){
         var inFrameLayer = inFrameLayers.objectAtIndex(l);
         var inFrameLayerName = inFrameLayer.name();
@@ -103,14 +103,14 @@ var calculateTransitions = function(){
         if(animations.hasOwnProperty(animationName)){
             var animation = animations[animationName];
             var keyframeCount = animation.keyframes.length;
-            var transitionCount = keyframeCount - 1;
+            var transitionCount = keyframeCount - 1; // always one less transition than keyframes
             if(transitionCount === 0) continue;
             animation.transitions = {};
             // compare keyframes for all transitions
             for(var t=0; t < transitionCount; t++){
-                var inFrame = animation.keyframes[t].layer;
-                var outFrame = animation.keyframes[t+1].layer;
-                var transitions = compareKeyframes(inFrame, outFrame);
+                var inFrame = animation.keyframes[t].layer; // starting artboard
+                var outFrame = animation.keyframes[t+1].layer; // ending artboard
+                var transitions = compareKeyframes(inFrame, outFrame); // compare groups on artboards
                 for(var i=0; i < transitions.length; i++){
                     var transition = transitions[i];
                     animation.transitions[transition.target.name()] = animation.transitions[transition.target.name()] || [];
@@ -124,6 +124,7 @@ var calculateTransitions = function(){
 
 
 var initAnimations = function(){
+    // Detect and save all tagged animations in document
     // Check artboards on all document pages
     var pages = doc.pages();
     for(var p=0; p < [pages count]; p++){
@@ -229,6 +230,7 @@ var initTweens = function(animation, containerLayer){
             var layerTransitions = transitions[transition];
             // iterate individual layer transitions
             var tweens = [];
+
             for(var t=0; t < layerTransitions.length; t++){
                 var layerTransition = layerTransitions[t];
                 var timing = animation.keyframes[t+1].timing;
@@ -304,7 +306,7 @@ var playAnimation = function(name, containerLayer){
 }
 
 var playAnimations = function(context, playAndExport){
-    onStart(context);
+    onStart(context); // init animations and globals
     var artboards = [];
     for(var s=0; s < [selection count]; s++){
         if(selection[s].isMemberOfClass(MSArtboardGroup)){

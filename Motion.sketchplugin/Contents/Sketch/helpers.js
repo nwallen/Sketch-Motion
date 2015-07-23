@@ -2,18 +2,6 @@
 
 // finding elements
 
-var findLayerGroupsWithName = function(name, container){
-    var children = container.children();
-    var layers = [];
-    for(var c=0; c < [children count]; c++){
-        var child = children[c];
-        if(child.name() == name && child.isMemberOfClass(MSLayerGroup)){
-            layers.push(child);
-        }
-    }
-    return layers;
-}
-
 var filterLayersByName = function(name, layerSet){
 	var layers = [];
 	for(var l=0; l < [layerSet count]; l++){
@@ -27,6 +15,18 @@ var filterLayersByName = function(name, layerSet){
 	        }
 	    }
 	}
+    return layers;
+}
+
+var findLayerGroupsWithName = function(name, container){
+    var children = container.children();
+    var layers = [];
+    for(var c=0; c < [children count]; c++){
+        var child = children[c];
+        if(child.name() == name && child.isMemberOfClass(MSLayerGroup)){
+            layers.push(child);
+        }
+    }
     return layers;
 }
 
@@ -98,6 +98,24 @@ var artboardWithNameExistsInDocument = function(layerName){
 }
 
 // naming functions
+
+var deDupeGroupNames = function(container){
+	var increments = {};
+	var children = container.children();
+	for(var i=0; i < children.count(); i++){
+		var child = children.objectAtIndex(i);
+		if(child.isMemberOfClass(MSLayerGroup)){
+            groups = findLayerGroupsWithName(child.name(), container);
+            if(groups.length > 1){
+            	for(var g=0; g < groups.length; g++){
+            		var group = groups[g];
+            		group.setName(group.name() + " copy " + g)
+            	}
+            }
+        }
+	}
+	return children;
+}
 
 var getLegendName = function(animationName){
 	return stripTagSymbols(animationName) + " detected transitions";
