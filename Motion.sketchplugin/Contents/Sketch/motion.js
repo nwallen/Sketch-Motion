@@ -159,9 +159,9 @@ var initAnimations = function(){
                     }
                     animations[animationName].keyframes.push(keyframe);
                     animations[animationName].keyframes.sort(function(a,b){
-                        if(a.layer.name() < b.layer.name()) return -1;
-                        if(a.layer.name() > b.layer.name()) return 1;
-                        return 0;
+                        var aMixed = normalizeMixedDataValue( a.layer.name() );
+                        var bMixed = normalizeMixedDataValue( b.layer.name() );
+                        return( aMixed < bMixed ? -1 : 1 );
                     })
                 }
             }
@@ -180,15 +180,14 @@ var createTween = function(states, targetLayer, containerLayer, timing, animatio
             .easing( timing.easing )
             .delay( timing.delay )
             .onStart(function(){
-                log('animation start ' + targetLayer.name() + " ---- ")
-
+                //log('animation start ' + targetLayer.name() + " ---- ")
                 if(animationName && transitionName){
                     highlightTimelineFrame(transitionName, animationName);
                     highlightLegendName(transitionName, animationName);
                 }
             })
             .onComplete(function(){
-                log('animation stop ' + targetLayer.name()) 
+                //log('animation stop ' + targetLayer.name()) 
                 if(animationName && transitionName){
                     unHighlightTimelineFrame(transitionName, animationName);
                     unHighlightLegendName(transitionName, animationName);

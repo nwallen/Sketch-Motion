@@ -235,6 +235,33 @@ var numberPad = function(number, padding) {
     return output;
 }
 
+// mixed name sorting
+// http://www.bennadel.com/blog/2495-user-friendly-sort-of-alpha-numeric-data-in-javascript.htm
+
+normalizeMixedDataValue = function( value ){
+    var padding = "000000000000000";
+    value = value.replace(
+        /(\d+)((\.\d+)+)?/g,
+        function( $0, integer, decimal, $3 ) {
+            if ( decimal !== $3 ) {
+                return(
+                    padding.slice( integer.length ) +
+                    integer +
+                    decimal
+                );
+            }
+            decimal = ( decimal || ".0" );
+            return(
+                padding.slice( integer.length ) +
+                integer +
+                decimal +
+                padding.slice( decimal.length )
+            );
+        }
+    );
+    return( value );
+}
+
 // objects
 
 var countObjectKeys = function(thisObject){
