@@ -152,21 +152,29 @@ var updateTimelineLegend = function(animationName){
             curveMask.setHasClippingMask(true);
 
             var imagePath = pluginPath + RESOURCESPATH + ANIMATIONCURVEFILENAME;
-            var image = addImage(imagePath, curve, getCurveSelectorName(transitionName));
+            var image = addImage(imagePath, curve, 'animationCurve');
 
             animations[animationName].timelineLegendArtboard.frame().setConstrainProportions(0);
             animations[animationName].timelineLegendArtboard.frame().addHeight(LEGENDLAYOUT.easeTileHeight + LEGENDLAYOUT.margin)
         }
         else {
+            // details exist - update 
             var detailToUpdate = details.objectAtIndex(k - 1);
             detailToUpdate.setName(transitionName);
             var textToUpdate = findTextWithName('animationInfo', detailToUpdate)[0];
+
             if(textToUpdate){
                 textToUpdate.stringValue = transitionName + "\ndelay " + timing.delay + "ms / duration " + timing.duration + "ms";   
             }
-            var imageToUpdate = findImageWithName(getCurveSelectorName(transitionName), detailToUpdate)[0];
+           
+            var extractedEasing = extractEasingCurve(transitionName, animationName);
+            if(extractedEasing){
+                timing.easing = extractedEasing.ease;
+                timing.easingIndex = extractedEasing.easingIndex;
+            }
+
+            var imageToUpdate = findImageWithName('animationCurve', detailToUpdate)[0];
             if(imageToUpdate){
-                imageToUpdate.setName(getCurveSelectorName(transitionName));
                 updateFrame({
                     x: -(LEGENDLAYOUT.easeTileWidth * timing.easingIndex) + 1,
                     y:1
@@ -252,14 +260,6 @@ var updateTimeline = function(animationName) {
             timing.startTime = newTiming.startTime;
             segment.setName(transitionName); 
             prevSegment = segment;
-            // also update easing curves if legend board is populated
-            if(animations[animationName].timelineLegendArtboard && animations[animationName].timelineLegendArtboard.layers().count() > 0){
-                var extractedEasing = extractEasingCurve(transitionName, animationName);
-                if(extractedEasing){
-                    timing.easing = extractedEasing.ease;
-                    timing.easingIndex = extractedEasing.easingIndex;
-                }
-            }
 
             // resizing timeline segments messes up text size
             var text = findTextWithName('timelineSegmentTitle', segment);
@@ -275,7 +275,8 @@ var updateTimeline = function(animationName) {
 
 var extractEasingCurve = function(transitionName, animationName){
     var artboard = animations[animationName].timelineLegendArtboard;
-    var imageLayers = findImageWithName(getCurveSelectorName(transitionName), artboard);
+    var group = findLayerGroupsWithName(transitionName, artboard)
+    var imageLayers = findImageWithName('animationCurve', group[0]);
     if(imageLayers[0]){
         var selectorX =  imageLayers[0].frame().x();
         var selectorIndex = Math.abs(Math.round(selectorX/LEGENDLAYOUT.easeTileWidth));
