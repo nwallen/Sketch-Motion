@@ -144,6 +144,31 @@ var animationTimelineName = function(animationName) {
 // working with styles
 // TODO: Add style get helpers
 
+var updateLayerProperties = function(properties, layer){
+	var frame = layer.rect();
+    if(properties.x){
+        frame.origin.x = properties.x;
+    }
+    if(properties.y){
+        frame.origin.y = properties.y;
+    }
+    if(properties.height){
+        frame.size.height = properties.height;
+    }
+    if(properties.width){
+        frame.size.width = properties.width;
+    }
+    if(properties.rotation){
+        layer.setRotation(properties.rotation);
+    }
+    layer.setRect(frame);
+    var style = layer.style();
+    if(properties.opacity){
+        style.contextSettings().opacity = properties.opacity;
+    }
+    layer.setStyle(style);
+}
+
 var updateFrame = function(frame, layer) {
 	if(frame.width){
 		layer.frame().setWidth(frame.width);

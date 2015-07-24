@@ -66,31 +66,40 @@ var compareLayerProperties = function(inFrameLayer, outFrameLayer){
         states.in.opacity = parseFloat(inStyle.contextSettings().opacity());
         states.out.opacity = parseFloat(outStyle.contextSettings().opacity()); 
     }
-    return states;
+   
+    if(countObjectKeys(states.in) == 0){
+        return null
+    }
+    
+    return states
 }
 
 var compareKeyframes = function(inFrame, outFrame){
     var transitions = [];
-    var inFrameLayers = deDupeGroupNames(inFrame);
-    var outFrameLayers = deDupeGroupNames(outFrame);
+    deDupeGroupNames(inFrame);
+    deDupeGroupNames(outFrame);
+    var inFrameLayers = inFrame.children();
+    var outFrameLayers = outFrame.children();
     for(var l=0; l < [inFrameLayers count]; l++){
         var inFrameLayer = inFrameLayers.objectAtIndex(l);
         var inFrameLayerName = inFrameLayer.name();
-        //loop through each layer group in inFrame
+        //loop through each group in inFrame artboard
         if(inFrameLayer.isMemberOfClass(MSLayerGroup)){
             for(var o=0; o < [outFrameLayers count]; o++){
                 var outFrameLayer = outFrameLayers.objectAtIndex(o);
                 var outFrameLayerName = outFrameLayer.name();
-                //search for same layer group in the outFrame
+                //search for same group in the outFrame artboard
                 if(inFrameLayerName == outFrameLayerName && outFrameLayer.isMemberOfClass(MSLayerGroup)){  
                     //if properties are different save states
                     var states =  compareLayerProperties(inFrameLayer, outFrameLayer);
-                    var transition = {
-                        target: inFrameLayer,
-                        states: states
+                    if(states != null){
+                        var transition = {
+                            target: inFrameLayer,
+                            states: states
+                        }
+                        //return object containing in and out states for each target layer
+                        transitions.push(transition);
                     }
-                    //return object containing in and out states for each target layer
-                    transitions.push(transition);
                 }
             }
         }
@@ -113,6 +122,7 @@ var calculateTransitions = function(){
                 var transitions = compareKeyframes(inFrame, outFrame); // compare groups on artboards
                 for(var i=0; i < transitions.length; i++){
                     var transition = transitions[i];
+                    transition.keyframeIndex = t + 1; // corresponding keyframe is outFrame
                     animation.transitions[transition.target.name()] = animation.transitions[transition.target.name()] || [];
                     animation.transitions[transition.target.name()].push(transition);
                 }
@@ -164,60 +174,40 @@ var initAnimations = function(){
 
 var createTween = function(states, targetLayer, containerLayer, timing, animationName, transitionName) {
     var layers = findLayerGroupsWithName(targetLayer.name(), containerLayer);
+    var layer = layers[0];
     var tween = new TWEEN.Tween(states.in)
             .to(states.out, timing.duration )
             .easing( timing.easing )
             .delay( timing.delay )
             .onStart(function(){
+                log('animation start ' + targetLayer.name() + " ---- ")
+
                 if(animationName && transitionName){
                     highlightTimelineFrame(transitionName, animationName);
                     highlightLegendName(transitionName, animationName);
                 }
             })
             .onComplete(function(){
+                log('animation stop ' + targetLayer.name()) 
                 if(animationName && transitionName){
                     unHighlightTimelineFrame(transitionName, animationName);
                     unHighlightLegendName(transitionName, animationName);
                 }
             })
-            .onUpdate(function(){   
-                for( var l=0; l < layers.length; l++){
-                    var layer = layers[l];
-                    var frame = layer.rect();
-                    if(this.x){
-                        frame.origin.x = this.x;
-                    }
-                    if(this.y){
-                        frame.origin.y = this.y;
-                    }
-                    if(this.height){
-                        frame.size.height = this.height;
-                    }
-                    if(this.width){
-                        frame.size.width = this.width;
-                    }
-                    if(this.rotation){
-                        layer.setRotation(this.rotation);
-                    }
-                    layer.setRect(frame);
-                    var style = layer.style();
-                    if(this.opacity){
-                        style.contextSettings().opacity = this.opacity;
-                    }
-                    layer.setStyle(style);
-                }
+            .onUpdate(function(){ 
+                updateLayerProperties(this, layer);  
             });
     return tween;
 }
 
-var chainTweens = function(tweens){
+var chainTweens = function(tweens, startTime){
     // chain transitions so they play in sequence
     for(var t=0; t < tweens.length; t++){
         if(t+1 < tweens.length){
             tweens[t].chain(tweens[t+1]);
         }
         if(t == 0){
-            tweens[t].start();
+            tweens[t].start(startTime);
         }
     }
 }
@@ -230,16 +220,19 @@ var initTweens = function(animation, containerLayer){
             var layerTransitions = transitions[transition];
             // iterate individual layer transitions
             var tweens = [];
-
+            var firstKeyframeStartTime = parseInt(animation.keyframes[layerTransitions[0].keyframeIndex].timing.startTime);
+            var firstKeyframeDelay = parseInt(animation.keyframes[layerTransitions[0].keyframeIndex].timing.delay);
+            var startTime = Date.now() + (firstKeyframeStartTime - firstKeyframeDelay);
             for(var t=0; t < layerTransitions.length; t++){
                 var layerTransition = layerTransitions[t];
-                var timing = animation.keyframes[t+1].timing;
+                var index = layerTransition.keyframeIndex;
+                var timing = animation.keyframes[index].timing;
                 var animationName = animation.name;
-                var transitionName = getTransitionName(animationName, t, t+1);
+                var transitionName = getTransitionName(animationName, index - 1, index);
                 var tween = createTween(layerTransition.states, layerTransition.target, containerLayer, timing, animationName, transitionName);
                 tweens[t] = tween;
             }
-            chainTweens(tweens);
+            chainTweens(tweens, startTime);
             startPlayhead(animation.name);
         }
     }

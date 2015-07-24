@@ -249,6 +249,7 @@ var updateTimeline = function(animationName) {
             var newTiming = extractAnimationValues(prevSegment, segment);
             timing.delay = newTiming.delay;
             timing.duration = newTiming.duration;
+            timing.startTime = newTiming.startTime;
             segment.setName(transitionName); 
             prevSegment = segment;
             // also update easing curves if legend board is populated
@@ -295,6 +296,7 @@ var extractAnimationValues = function(prev, current){
         returnObj.delay = Math.round(currentFrame.origin.x * MSPERPIXEL);
     }
     returnObj.duration = Math.round(currentFrame.size.width * MSPERPIXEL);
+    returnObj.startTime = Math.round(currentFrame.origin.x * MSPERPIXEL); 
     return returnObj; 
 }
 
