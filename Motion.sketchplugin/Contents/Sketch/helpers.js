@@ -186,7 +186,7 @@ var updateTextStyle = function(style, text) {
 	// TODO: Add all other style properities
 }
 
-function addImage (imagePath, container, name) {
+var addImage = function(imagePath, container, name) {
 	var image = [[NSImage alloc] initWithContentsOfFile:imagePath]; 
 	var layerName = name || "image";
 	var imageLayer = [MSBitmapLayer new];
@@ -202,7 +202,7 @@ function addImage (imagePath, container, name) {
 
 // number padding
 
-function numberPad(number, padding) {
+var numberPad = function(number, padding) {
     var output = number + '';
     while (output.length < padding) {
         output = '0' + output;
@@ -210,10 +210,18 @@ function numberPad(number, padding) {
     return output;
 }
 
+// objects
+
+var countObjectKeys = function(thisObject){
+	var count = 0;
+	for (k in thisObject) if (thisObject.hasOwnProperty(k)) count++;
+	return count;
+}
+
 
 // Only used for debugging. Very helpful for object introspection
 // https://github.com/tylergaw/day-player/blob/master/lib/utils.js
-function dump (obj) {
+var dump = function(obj) {
 	log("#####################################################################################")
 	log("## Dumping object " + obj )
 	log("## obj class is: " + [obj className])
