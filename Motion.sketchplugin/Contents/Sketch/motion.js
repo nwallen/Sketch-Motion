@@ -4,6 +4,7 @@
 @import 'helpers.js'
 @import 'timeline.js'
 @import 'gif.js'
+@import 'flatten.js'
 
 var doc;
 var selection;
@@ -293,6 +294,8 @@ var playAnimation = function(name, containerLayer){
         var layerCopy = [layer copy];
         containerLayer.addLayers([layerCopy]);
     }
+    // flatten artwork for better performance
+    flattenArtwork(containerLayer);
     // create tweens
     initTweens(targetAnimation, containerLayer);
 }

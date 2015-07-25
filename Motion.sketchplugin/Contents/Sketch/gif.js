@@ -12,7 +12,6 @@ var initGIFexport = function() {
 	tempPath = NSTemporaryDirectory();
 	var string = [[NSProcessInfo processInfo] globallyUniqueString];
 	gifsetPath = [tempPath stringByAppendingPathComponent: string + @".gifset"];
-	exportDebugPath = pluginPath + '/temp/';
 
 	gifFileManager = [NSFileManager defaultManager]
     [gifFileManager createDirectoryAtPath:gifsetPath withIntermediateDirectories:true attributes:nil error:nil]

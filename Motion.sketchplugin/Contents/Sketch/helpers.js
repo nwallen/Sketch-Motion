@@ -223,6 +223,8 @@ var addImage = function(imagePath, container, name) {
 	imageLayer.frame().setWidth(image.size().width);
 	imageLayer.frame().setHeight(image.size().height);
 	imageLayer.setConstrainProportions(true);
+
+	return imageLayer;
 }
 
 // number padding
