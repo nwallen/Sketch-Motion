@@ -5,7 +5,7 @@ Plugin to quickly create, preview, and export animations ... in Sketch.
 Early proof-of-concept version tested in sketch 3.3.3 -- use at your own risk
 
 ## Installation
-1. **[Download](https://github.com/nwallen/Sketch-Motion/archive/master.zip)** and unzip
+1. **[Download a Release](https://github.com/nwallen/Sketch-Motion/releases)** and unzip
 2. Open Sketch and select `Plugins ▸ Reveal Plugins Folder...` from the menu bar
 3. Copy the `Sketch Motion` directory into the plugins folder
 4. Locate the `GIFX` file and double-click (if prompted, give GIFX permission to run)
@@ -45,16 +45,6 @@ Early proof-of-concept version tested in sketch 3.3.3 -- use at your own risk
 **Export a GIF**
 - To export a GIF of an animation select an artboard containing a player(s) by clicking its name. Then select `Plugins ▸ Motion ▸ Export GIF` from the Sketch toolbar or use the keyboard shortcut `control` + `⌘ command` + `e` 
 - Follow the prompts
-
-## Release Notes
-
-**0.1.0**
-- [x] Animate position, size, opacity, and rotation of layer groups
-- [x] Adjust animation delay and duration
-- [x] Adjust animation easing curve
-- [x] Preview animations in Sketch
-- [x] Export GIFs of animations
-
 
 ## Feedback
 Please add an issue to this repository to report problems or make suggestions for the development of this plugin. You can also find me on Twitter [@nawt](https://twitter.com/nawt)
