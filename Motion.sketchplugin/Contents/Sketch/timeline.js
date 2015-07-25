@@ -211,7 +211,7 @@ var addTimelinePlayhead = function(animationName, segments){
 }
 
 var startPlayhead = function(animationName){
-    animations[animationName].timelineTween.start();
+    animations[animationName].timelineTween.start(pluginStartTime);
 }
 
 var updateTimeline = function(animationName) {

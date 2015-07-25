@@ -10,6 +10,7 @@ var doc;
 var selection;
 var selectedArtboard;
 var pluginPath;
+var pluginStartTime; // used to sync all animations
 var animations = {};
 
 var onStart = function(context){
@@ -17,6 +18,7 @@ var onStart = function(context){
     [[COScript currentCOScript] setShouldKeepAround:true]
     doc = context.document;
     selection = context.selection;
+    pluginStartTime = Date.now()
     var scriptPath = context.scriptPath;
     var pluginFolder = scriptPath.match(/Plugins\/([\w -])*/)[0] + "/";
     var basePath = scriptPath.split("Plugins")[0];
@@ -222,7 +224,7 @@ var initTweens = function(animation, containerLayer){
             var tweens = [];
             var firstKeyframeStartTime = parseInt(animation.keyframes[layerTransitions[0].keyframeIndex].timing.startTime);
             var firstKeyframeDelay = parseInt(animation.keyframes[layerTransitions[0].keyframeIndex].timing.delay);
-            var startTime = Date.now() + (firstKeyframeStartTime - firstKeyframeDelay);
+            var startTime = pluginStartTime + (firstKeyframeStartTime - firstKeyframeDelay);
             for(var t=0; t < layerTransitions.length; t++){
                 var layerTransition = layerTransitions[t];
                 var index = layerTransition.keyframeIndex;
@@ -239,7 +241,7 @@ var initTweens = function(animation, containerLayer){
 }
 
 var animate = function() {
-    var animationTime = Date.now(); // current time
+    var animationTime = pluginStartTime; // time when plugin was launched
     var fps = 60;
     // run animation loop
     [coscript scheduleWithRepeatingInterval:(1/fps) jsFunction:function(cinterval){
@@ -254,7 +256,7 @@ var animate = function() {
 }
 
 var animateAndSaveGIF = function() {
-    var animationTime = Date.now(); // current time
+    var animationTime = pluginStartTime; //  time when plugin was launched
     var exportOptions = exportOptionsDialog();
     var fps = exportOptions.fps || 30;
     var loops = exportOptions.loops;
