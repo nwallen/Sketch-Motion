@@ -27,6 +27,7 @@ var replaceLayersWithImage = function(layers, container){
 	var fileManger = [NSFileManager defaultManager]
     [fileManger createDirectoryAtPath:imageExportPath withIntermediateDirectories:true attributes:nil error:nil]
 
+    // add artboard to export
     var tempExportArtboard = [MSArtboardGroup new]
     updateFrame({
     	x:10000,
@@ -34,27 +35,36 @@ var replaceLayersWithImage = function(layers, container){
     	width:10000,
     	height:10000
     }, tempExportArtboard)
-    doc.currentPage().addLayers([tempExportArtboard])
-
+    doc.currentPage().addLayers([tempExportArtboard]);
+    // add a group to hold artwork
+    var exportGroup = tempExportArtboard.addLayerOfType('group');
+    // set frame to 1x1 so that it snaps to artworks
+    updateFrame({
+    	width:1,
+    	height:1
+    }, exportGroup)
+    // place duplicate artwork in export group (sizes to match artwork)
     for(var l=0; l < layers.length; l++){
-	    var thisLayer = layers[l];
-	    var layerCopy = thisLayer.copy();
-	    tempExportArtboard.addLayers([layerCopy]);
-	    updateFrame({
-	    	x:0,
-	    	y:0
-	    }, layerCopy)
-
-	    var filename = imageExportPath + thisLayer.name() + '.png';
-	    var rect = layerCopy.absoluteDirtyRect();
-	    var slice = [MSExportRequest requestWithRect:rect scale:1];
-	    [doc saveArtboardOrSlice:slice toFile:filename];
-	    var flattenedImage = addImage(filename, container, thisLayer.name() + ' flattened');
-	    flattenedImage.setRect(thisLayer.rect());
-	    layerCopy.removeFromParent();
-	    thisLayer.removeFromParent();
+    	var thisLayer = layers[l];
+    	var layerCopy = thisLayer.copy();
+    	exportGroup.addLayers([layerCopy]);
+    	thisLayer.removeFromParent();
     }
- 
- 	tempExportArtboard.removeFromParent();
+    // match artboard size to export group
+    updateFrame({
+    	width: exportGroup.absoluteDirtyRect().size.width,
+    	height: exportGroup.absoluteDirtyRect().size.height
+    }, tempExportArtboard)
+   	// export artboard
+   	var filename = imageExportPath + container.name() + '-flattened.png';
+   	[doc saveArtboardOrSlice:tempExportArtboard toFile:filename];
+   	tempExportArtboard.removeFromParent();
+   	// add exported image to original player
+   	var flattenedImage = addImage(filename, container, container.name() + '-flattened');
+   	updateFrame({
+   		x:0,
+   		y:0
+   	}, flattenedImage)
+   	// remove temporary files
     [fileManger removeItemAtPath:imageExportPath error:nil]  
 }
