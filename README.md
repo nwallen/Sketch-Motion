@@ -1,5 +1,5 @@
 #Sketch Motion Plugin
-Plugin to quickly create, preview, and export animations ... in Sketch. 
+Plugin to quickly create, preview, and export motion designs ... in Sketch. 
 
 **Warning**
 Early proof-of-concept version tested in sketch 3.3.3 -- use at your own risk
