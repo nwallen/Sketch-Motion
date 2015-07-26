@@ -1,5 +1,5 @@
 #Sketch Motion Plugin
-Plugin to quickly create, preview, and export motion designs ... in Sketch. 
+Plugin to quickly create, preview, and export motion designs ... in [Sketch](http://bohemiancoding.com/sketch/). 
 
 **Warning**
 Early proof-of-concept version tested in sketch 3.3.3 -- use at your own risk
@@ -52,3 +52,4 @@ Please add an issue to this repository to report problems or make suggestions fo
 ## Props
 - GIF Generation - Nathan Rutzky https://github.com/nathco/Generate-GIF
 - Tweens - https://github.com/tweenjs/tween.js/
+- The Sketch Team - http://bohemiancoding.com/sketch/
