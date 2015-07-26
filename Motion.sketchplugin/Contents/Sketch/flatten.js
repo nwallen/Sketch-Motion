@@ -5,6 +5,10 @@ var flattenArtwork = function(container){
     var layersToFlatten = [];
     for(var i=0; i < layers.count(); i++){
         var layer = layers.objectAtIndex(i);
+        // unregister all symbol instances to avoid replacing original artwork with flattened artwork
+        if(layer.isSymbol()){
+            doc.documentData().layerSymbols().unregisterInstance(layer);
+        }
         if(layer.isMemberOfClass(MSLayerGroup)){
             flattenArtwork(layer);
         }
