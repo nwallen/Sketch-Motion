@@ -7,11 +7,11 @@ var Date = Date || {};
 var performance = performance || {};
 
 Date.now = function() {
-	return ([NSDate timeIntervalSinceReferenceDate] * 1000);
+    return ([NSDate timeIntervalSinceReferenceDate] * 1000);
 }
 
 performance.now = function() {
-	return ([NSDate timeIntervalSinceReferenceDate] * 1000);
+    return ([NSDate timeIntervalSinceReferenceDate] * 1000);
 }
 
 window.Date = Date;
