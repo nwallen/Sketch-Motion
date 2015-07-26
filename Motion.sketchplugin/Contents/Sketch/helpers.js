@@ -146,46 +146,46 @@ var animationTimelineName = function(animationName) {
 
 var updateLayerProperties = function(properties, layer){
     var frame = layer.rect();
-    if(properties.x){
+    if(properties.x != undefined){
         frame.origin.x = properties.x;
     }
-    if(properties.y){
+    if(properties.y != undefined){
         frame.origin.y = properties.y;
     }
-    if(properties.height){
+    if(properties.height != undefined){
         frame.size.height = properties.height;
     }
-    if(properties.width){
+    if(properties.width != undefined){
         frame.size.width = properties.width;
     }
-    if(properties.rotation){
+    if(properties.rotation != undefined){
         layer.setRotation(properties.rotation);
     }
     layer.setRect(frame);
     var style = layer.style();
-    if(properties.opacity){
+    if(properties.opacity != undefined){
         style.contextSettings().opacity = properties.opacity;
     }
     layer.setStyle(style);
 }
 
 var updateFrame = function(frame, layer) {
-    if(frame.width){
+    if(frame.width != undefined){
         layer.frame().setWidth(frame.width);
     }
-    if(frame.height){
+    if(frame.height != undefined){
         layer.frame().setHeight(frame.height);
     }
-    if(frame.x){
+    if(frame.x != undefined){
         layer.frame().setX(frame.x);
     }
-    if(frame.y){
+    if(frame.y != undefined){
         layer.frame().setY(frame.y);
     }
 }
 
 var updateShapeStyle = function(style, shape) {
-    if(style.color){
+    if(style.color != undefined){
         var shapeFills = shape.style().fills().array();
         // shape has a fill
         if(shapeFills[0]){
@@ -198,13 +198,13 @@ var updateShapeStyle = function(style, shape) {
 
 var updateTextStyle = function(style, text) {
     if(text &&  text.isMemberOfClass(MSTextLayer)){
-        if(style.color){
+        if(style.color != undefined){
             text.textColor = MSColor.colorWithSVGString(style.color);
         }
-        if(style.size){
+        if(style.size != undefined){
             text.fontSize = style.size;
         }
-        if(style.font){
+        if(style.font != undefined){
             text.fontPostscriptName = style.font;
         }
     }
