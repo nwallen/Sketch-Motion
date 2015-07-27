@@ -13,8 +13,6 @@ Early proof-of-concept version tested in sketch 3.3.3 -- use at your own risk
 
 ## Usage
 
-![Usage](http://nwallen.github.io/Sketch-Motion/static/quickUsageCapture.gif)
-
 **Define Animation Keyframes**
 
 ![keyframes](http://nwallen.github.io/Sketch-Motion/static/keyframes.png)
