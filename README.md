@@ -2,6 +2,8 @@
 
 Plugin to quickly create, preview, and export motion designs ... in [Sketch](http://bohemiancoding.com/sketch/). 
 
+[See the Gallery](https://github.com/nwallen/Sketch-Motion-Gallery/) for examples.
+
 **Warning**
 Early proof-of-concept version tested in sketch 3.3.3 -- use at your own risk
 
