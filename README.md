@@ -5,6 +5,22 @@ Plugin to quickly create, preview, and export motion designs ... in [Sketch](htt
 **Warning**
 Early proof-of-concept version tested in sketch 3.3.3 -- use at your own risk
 
+## What's it for?
+UIs need motion. On Web, on mobile, on anything with a screen: motion illustrates and delights. There are [many](https://facebook.github.io/origami/) [excellent](http://www.pixate.com/) [tools](http://framerjs.com/) for creating interactive, animated prototypes. However, if you're designing in Sketch, motion currently means a context switch to another application, which slows down your ability to iterate. The intent of Sketch Motion is to provide a lightweight, coding-free method to explore motion ideas *in Sketch* with no context switch. It's not going to replace After Effects or Origami, but it will help you try out motion ideas *fast*. Here are some ways you might use Sketch Motion:
+
+- Explore several UI transitions before jumping into a dedicated prototyping tool
+- Create animated GIFs for use in an Invision, Flinto, or Marvel clickable prototype
+- Create animated assets like loaders
+
+## How it works
+Sketch Motion builds on how you might intially spec out an animation in Sketch: creating a series of artboards to document the animation's key moments. To animate, simply point Sketch Motion at these "keyframe" artboards. It will generate a smooth animation, which you can preview in Sketch or export as an animated GIF. 
+
+The plugin automatically provides artboards to adjust the timing and easing of each animation. Animations also are modular -- allowing you to duplicate and composite them together.
+
+**A simple animation**
+
+![capture](http://nwallen.github.io/Sketch-Motion/static/quickUsageCapture.gif)
+
 ## Installation
 1. **[Download a Release](https://github.com/nwallen/Sketch-Motion/releases)** and unzip
 2. Open Sketch and select `Plugins ▸ Reveal Plugins Folder...` from the menu bar
@@ -17,8 +33,8 @@ Early proof-of-concept version tested in sketch 3.3.3 -- use at your own risk
 
 ![keyframes](http://nwallen.github.io/Sketch-Motion/static/keyframes.png)
 
- - Animations are referenced with "tags". A tag is any word wrapped in curly braces e.g. and animation called "loader" would use the tag `{loader}`
- - Tag the names of the artboards to include them as keyframes in an animation: e.g. artboards named `{loader} frame 1`, `{loader} frame 2` would compose a "loader" animation.
+ - Animations are referenced with "tags". A tag is any word wrapped in curly braces e.g. and animation called "example" would use the tag `{example}`
+ - Tag the names of the artboards to include them as keyframes in an animation: e.g. artboards named `{example} 1`, `{example} 2` would compose an "example" animation.
  - Tagged artboards play in alphabetical order based on their names
  - You may freely add and remove tagged artboards -- the plugin will adjust
 
@@ -37,7 +53,7 @@ Early proof-of-concept version tested in sketch 3.3.3 -- use at your own risk
 
 ![player](http://nwallen.github.io/Sketch-Motion/static/player.png)
 
-- Animations are played via "players". Create a player by tagging a group with the name of the animation you would like to play: e.g. renaming `myGroup ▸ myGroup {loader}` creates a player for the "loader" animation
+- Animations are played via "players". Create a player by tagging a group with the name of the animation you would like to play: e.g. renaming `myGroup ▸ myGroup {example}` creates a player for the "loader" animation
 - To play the animation select the artboard containing the tagged group by clicking its name. Then select `Plugins ▸ Motion ▸ Animate` from the Sketch toolbar or use the keyboard shortcut `control` + `⌘ command` + `a` 
 - The animation will play. Two additional artboards will be added to your document (the "Timeline" and the "Legend") which you may use to adjust the animation
 - You can add multiple players to an artboard -- for the same or different animations
