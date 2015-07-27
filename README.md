@@ -2,7 +2,7 @@
 
 Plugin to quickly create, preview, and export motion designs ... in [Sketch](http://bohemiancoding.com/sketch/). 
 
-[See the Gallery](https://github.com/nwallen/Sketch-Motion-Gallery/) for examples.
+![Usage](http://nwallen.github.io/Sketch-Motion/static/quickUsageCapture.gif)
 
 **Warning**
 Early proof-of-concept version tested in sketch 3.3.3 -- use at your own risk
@@ -12,8 +12,6 @@ Early proof-of-concept version tested in sketch 3.3.3 -- use at your own risk
 2. Open Sketch and select `Plugins ▸ Reveal Plugins Folder...` from the menu bar
 3. Copy the `Sketch Motion` directory into the plugins folder
 4. Locate the `GIFX` file and double-click (if prompted, give GIFX permission to run)
-
-![Usage](http://nwallen.github.io/Sketch-Motion/static/quickUsageCapture.gif)
 
 ## Usage
 
@@ -37,7 +35,7 @@ Early proof-of-concept version tested in sketch 3.3.3 -- use at your own risk
 - The group must exist on the first artboard -- otherwise it will not be included in the animation
 
 
-**Add a Player & Preview Animations**
+**Add a Player**
 
 ![player](http://nwallen.github.io/Sketch-Motion/static/player.png)
 
@@ -65,6 +63,9 @@ Early proof-of-concept version tested in sketch 3.3.3 -- use at your own risk
 **Export a GIF**
 - To export a GIF of an animation select an artboard containing a player(s) by clicking its name. Then select `Plugins ▸ Motion ▸ Export GIF` from the Sketch toolbar or use the keyboard shortcut `control` + `⌘ command` + `e` 
 - Follow the prompts
+
+## Resources
+[See the Gallery](https://github.com/nwallen/Sketch-Motion-Gallery/) for examples.
 
 ## Feedback
 Please add an issue to this repository to report problems or make suggestions for the development of this plugin. You can also find me on Twitter [@nawt](https://twitter.com/nawt)
