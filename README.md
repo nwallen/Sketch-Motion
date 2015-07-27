@@ -15,7 +15,7 @@ UIs need motion. On Web, on mobile, on anything with a screen: motion illustrate
 ## How it works
 Sketch Motion builds on how you might intially spec out an animation in Sketch: creating a series of artboards to document the animation's key moments. To animate, simply point Sketch Motion at these "keyframe" artboards. It will generate a smooth animation, which you can preview in Sketch or export as an animated GIF. 
 
-The plugin automatically provides artboards to adjust the timing and easing of each animation. Animations also are modular -- allowing you to duplicate and composite them together.
+The plugin automatically provides artboards to adjust the timing and easing of each animation. Animations are modular -- allowing you to duplicate and composite them together.
 
 **A simple animation**
 
