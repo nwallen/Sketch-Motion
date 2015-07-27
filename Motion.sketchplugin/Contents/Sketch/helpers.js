@@ -186,11 +186,38 @@ var updateFrame = function(frame, layer) {
 }
 
 var updateShapeStyle = function(style, shape) {
-    if(style.color != undefined){
+    // fill
+    if(style.fill != undefined){
         var shapeFills = shape.style().fills().array();
         // shape has a fill
-        if(shapeFills[0]){
-            shapeFills[0].setColor(MSColor.colorWithSVGString(style.color));
+        if(shapeFills.count() > 0){
+            shapeFills[0].setColor(MSColor.colorWithSVGString(style.fill));
+        }
+        else {
+            var newFill = shape.style().fills().addNewStylePart();
+            newFill.setColor(MSColor.colorWithSVGString(style.fill));
+        }
+    }
+    // border
+    if(style.border != undefined){
+        var shapeBorders = shape.style().borders().array();
+        // shape has a fill
+        if(shapeBorders.count() > 0){
+            if(style.border.color != undefined){
+                shapeBorders[0].setColor(MSColor.colorWithSVGString(style.border.color));
+            }
+            if(style.border.thickness != undefined){
+                shapeBorders[0].setThickness(parseFloat(style.border.thickness));
+            }
+        }
+        else {
+            var newBorder = shape.style().borders().addNewStylePart();
+            if(style.border.color != undefined){
+                newBorder.setColor(MSColor.colorWithSVGString(style.border.color));
+            }
+            if(style.border.thickness != undefined){
+                newBorder.setThickness(parseFloat(style.border.thickness));
+            }
         }
     }
     // TODO: Add all other style properities

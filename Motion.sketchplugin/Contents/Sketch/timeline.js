@@ -16,26 +16,83 @@ var createTimelineSegment = function(x, y, width, height, index, transitionName,
     // rectangle
     var rectangle = group.addLayerOfType('rectangle');
     rectangle.setName('timelineSegment');
-    var rectangleFill = rectangle.style().fills().addNewStylePart();
-    rectangleFill.color = MSColor.colorWithSVGString('#FAFAFA');
-    var rectangleBorder = rectangle.style().borders().addNewStylePart();
-    rectangleBorder.color = MSColor.colorWithSVGString('#A6A6A6');
-    rectangleFrame = rectangle.rect();
-    rectangleFrame.size = group.rect().size;
-    rectangle.setRect(rectangleFrame);
+    updateShapeStyle({
+        fill: '#FAFAFA',
+        border: {color: '#A6A6A6', thickness:1}
+    }, rectangle)
+    updateFrame({
+        width: group.rect().size.width,
+        height: group.rect().size.height
+    }, rectangle)
     // title text
     var text = group.addLayerOfType('text');
     text.setName('timelineSegmentTitle');
     text.stringValue =  index + "";
-    text.fontPostscriptName = "HelveticaNeue-Bold";
-    text.fontSize = 45;
-    text.textColor = MSColor.colorWithSVGString('#A6A6A6');
-    text.textAlignment = 2;
-    textFrame = text.rect();
-    textFrame.size = group.rect().size;
-    text.setRect(textFrame);
+    updateTextStyle({
+        font: "HelveticaNeue-Bold",
+        size: 45,
+        color: '#A6A6A6'
+    },text)
+    updateFrame({
+        width: group.rect().size.width,
+        height: group.rect().size.height
+    }, text)
+    text.textAlignment = 2; // align center
 
     return group;
+}
+
+var createLegendDetail = function(k, transitionName, timing){
+    var detail = [MSLayerGroup new]
+    updateFrame({
+        x : LEGENDLAYOUT.margin,
+        y : ((k-1) * (LEGENDLAYOUT.easeTileHeight + LEGENDLAYOUT.margin)) + LEGENDLAYOUT.margin,
+        width : LEGENDLAYOUT.rowWidth,
+        height : LEGENDLAYOUT.easeTileHeight
+    }, detail);
+    detail.setName(transitionName);
+    
+    var index = detail.addLayerOfType('text');
+    index.setName('animationIndex')
+    index.stringValue = k + '';
+    updateTextStyle({
+        font: "HelveticaNeue-Bold",
+        size: 35
+    }, index)
+    updateFrame({
+        x : LEGENDLAYOUT.easeTileWidth + LEGENDLAYOUT.margin,
+        y : 0,
+        width : LEGENDLAYOUT.rowWidth - LEGENDLAYOUT.easeTileWidth - (LEGENDLAYOUT.margin * 3)
+    }, index);
+
+    var info = detail.addLayerOfType('text');
+    info.setName('animationInfo');
+    info.stringValue = transitionName + "\ndelay " + timing.delay + "ms / duration " + timing.duration + "ms";
+    updateTextStyle({
+        font: "HelveticaNeue-Thin",
+        size: 30
+    }, info)
+    updateFrame({
+        x : LEGENDLAYOUT.easeTileWidth + LEGENDLAYOUT.margin,
+        y : LEGENDLAYOUT.easeTileHeight * .40,
+        width : LEGENDLAYOUT.rowWidth - LEGENDLAYOUT.easeTileWidth - (LEGENDLAYOUT.margin * 3)
+    }, info);
+
+    var curve = detail.addLayerOfType('group');
+    curve.setName('curve');
+
+    var curveMask = curve.addLayerOfType('rectangle');
+    curveMask.setName('curveMask');
+    updateFrame({
+       width : LEGENDLAYOUT.easeTileWidth,
+       height : LEGENDLAYOUT.easeTileHeight
+    }, curveMask);
+    curveMask.setHasClippingMask(true);
+
+    var imagePath = pluginPath + RESOURCESPATH + ANIMATIONCURVEFILENAME;
+    var image = addImage(imagePath, curve, 'animationCurve');
+
+    return detail
 }
 
 var initTimelineArtboard = function(animationName, timelineArtboardName){
@@ -45,12 +102,12 @@ var initTimelineArtboard = function(animationName, timelineArtboardName){
     // setup timeline artboard 
     var timelineArtboard = [MSArtboardGroup new];
     timelineArtboard.setName(timelineArtboardName);   
-    var artboardFrame = timelineArtboard.rect();
-    //artboardFrame.size.width = animationKeyframes.length * 500;
-    artboardFrame.size.height = TIMELINEHEIGHT;
-    artboardFrame.origin.x = keyframeFrame.origin.x;
-    artboardFrame.origin.y = keyframeFrame.origin.y + keyframeFrame.size.height + 120; 
-    timelineArtboard.setRect(artboardFrame);
+    updateFrame({
+        x: keyframeFrame.origin.x,
+        y: keyframeFrame.origin.y + keyframeFrame.size.height + 120,
+        height: TIMELINEHEIGHT
+    },timelineArtboard)
+     // don't maintain proportions on resize
     timelineArtboard.frame().setConstrainProportions(0);
     // save reference to artboards in animation config object
     animations[animationName].timelineArtboard = timelineArtboard;
@@ -68,12 +125,13 @@ var initTimelineLegendArtboard = function(animationName, timelineArtboardName){
     var timelineLegendArtboard = [MSArtboardGroup new];
     var timelineLegendArtboardName = getLegendName(animationName);
     timelineLegendArtboard.setName(timelineLegendArtboardName);
-    var timelineLegendArtboardFrame = timelineLegendArtboard.rect();
-    timelineLegendArtboardFrame.size.width = LEGENDLAYOUT.rowWidth + (LEGENDLAYOUT.margin * 3);
-    timelineLegendArtboardFrame.size.height = LEGENDLAYOUT.margin;
-    timelineLegendArtboardFrame.origin.x = keyframeFrame.origin.x;
-    timelineLegendArtboardFrame.origin.y = keyframeFrame.origin.y + keyframeFrame.size.height + 300;
-    timelineLegendArtboard.setRect(timelineLegendArtboardFrame);
+    updateFrame({
+        x: keyframeFrame.origin.x ,
+        y: keyframeFrame.origin.y + keyframeFrame.size.height + 300,
+        height: LEGENDLAYOUT.margin,
+        width: LEGENDLAYOUT.rowWidth + (LEGENDLAYOUT.margin * 3) 
+    }, timelineLegendArtboard)
+    // don't maintain proportions on resize
     timelineLegendArtboard.frame().setConstrainProportions(0);
     // save reference to artboards in animation config object
     animations[animationName].timelineLegendArtboard = timelineLegendArtboard;
@@ -105,55 +163,8 @@ var updateTimelineLegend = function(animationName){
         // update details
         if((k-1) > (details.count() - 1)){
             // no details -- add new detail set
-            var detail = animations[animationName].timelineLegendArtboard.addLayerOfType('group');
-            updateFrame({
-                x : LEGENDLAYOUT.margin,
-                y : ((k-1) * (LEGENDLAYOUT.easeTileHeight + LEGENDLAYOUT.margin)) + LEGENDLAYOUT.margin,
-                width : LEGENDLAYOUT.rowWidth,
-                height : LEGENDLAYOUT.easeTileHeight
-            }, detail);
-            detail.setName (transitionName);
-            
-            var index = detail.addLayerOfType('text');
-            index.setName('animationIndex')
-            index.stringValue = k + '';
-            updateTextStyle({
-                font: "HelveticaNeue-Bold",
-                size: 35
-            }, index)
-            updateFrame({
-                x : LEGENDLAYOUT.easeTileWidth + LEGENDLAYOUT.margin,
-                y : 0,
-                width : LEGENDLAYOUT.rowWidth - LEGENDLAYOUT.easeTileWidth - (LEGENDLAYOUT.margin * 3)
-            }, index);
-
-            var info = detail.addLayerOfType('text');
-            info.setName('animationInfo');
-            info.stringValue = transitionName + "\ndelay " + timing.delay + "ms / duration " + timing.duration + "ms";
-            updateTextStyle({
-                font: "HelveticaNeue-Thin",
-                size: 30
-            }, info)
-            updateFrame({
-                x : LEGENDLAYOUT.easeTileWidth + LEGENDLAYOUT.margin,
-                y : LEGENDLAYOUT.easeTileHeight * .40,
-                width : LEGENDLAYOUT.rowWidth - LEGENDLAYOUT.easeTileWidth - (LEGENDLAYOUT.margin * 3)
-            }, info);
-
-            var curve = detail.addLayerOfType('group');
-            curve.setName('curve');
-
-            var curveMask = curve.addLayerOfType('rectangle');
-            curveMask.setName('curveMask');
-            updateFrame({
-               width : LEGENDLAYOUT.easeTileWidth,
-               height : LEGENDLAYOUT.easeTileHeight
-            }, curveMask);
-            curveMask.setHasClippingMask(true);
-
-            var imagePath = pluginPath + RESOURCESPATH + ANIMATIONCURVEFILENAME;
-            var image = addImage(imagePath, curve, 'animationCurve');
-
+            var detail =  createLegendDetail(k, transitionName, timing);
+            animations[animationName].timelineLegendArtboard.addLayers([detail]);
             animations[animationName].timelineLegendArtboard.frame().setConstrainProportions(0);
             animations[animationName].timelineLegendArtboard.frame().addHeight(LEGENDLAYOUT.easeTileHeight + LEGENDLAYOUT.margin)
         }
@@ -282,7 +293,6 @@ var extractEasingCurve = function(transitionName, animationName){
         var selectorIndex = Math.abs(Math.round(selectorX/LEGENDLAYOUT.easeTileWidth));
         return { easingIndex: selectorIndex, ease:ANIMATIONCURVEOPTIONS[selectorIndex].ease }
     }
-   
 }
 
 var extractAnimationValues = function(prev, current){
@@ -318,7 +328,7 @@ var highlightTimelineFrame = function(transitionName, animationName){
         var layers = findLayerGroupsWithName(transitionName, artboard);
         var shapes = findShapeWithName('timelineSegment', layers[0]);
         if(shapes[0]){
-             updateShapeStyle({color:'#76F6B3'}, shapes[0]);
+             updateShapeStyle({fill:'#76F6B3'}, shapes[0]);
              highlightedSegments[transitionName] = true;
         }
     }
@@ -330,7 +340,7 @@ var unHighlightTimelineFrame = function(transitionName, animationName){
         var layers = findLayerGroupsWithName(transitionName, artboard);
         var shapes = findShapeWithName('timelineSegment', layers[0]);
         if(shapes[0]){
-             updateShapeStyle({color:'#FAFAFA'}, shapes[0]);
+             updateShapeStyle({fill:'#FAFAFA'}, shapes[0]);
              highlightedSegments[transitionName] = false;
         }
     }
