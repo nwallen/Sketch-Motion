@@ -33,7 +33,7 @@ The plugin automatically provides artboards to adjust the timing and easing of e
 
 ![keyframes](http://nwallen.github.io/Sketch-Motion/static/keyframes.png)
 
- - Animations are referenced with "tags". A tag is any word wrapped in curly braces e.g. and animation called "example" would use the tag `{example}`
+ - Animations are referenced with "tags". A tag is any word wrapped in curly braces e.g. an animation called "example" would use the tag `{example}`
  - Tag the names of the artboards to include them as keyframes in an animation: e.g. artboards named `{example} 1`, `{example} 2` would compose an "example" animation.
  - Tagged artboards play in alphabetical order based on their names
  - You may freely add and remove tagged artboards -- the plugin will adjust
