@@ -6,7 +6,7 @@ Plugin to quickly create, preview, and export motion designs ... in [Sketch](htt
 Early proof-of-concept version tested in sketch 3.3.3 -- use at your own risk
 
 ## What's it for?
-UIs need motion. On Web, on mobile, on anything with a screen: motion illustrates and delights. There are [many](https://facebook.github.io/origami/) [excellent](http://www.pixate.com/) [tools](http://framerjs.com/) for creating interactive, animated prototypes. However, if you're designing in Sketch, motion currently means a context switch to another application, which slows down your ability to iterate. The intent of Sketch Motion is to provide a lightweight, coding-free method to explore motion ideas *in Sketch* with no context switch. It's not going to replace After Effects or Origami, but it will help you try out motion ideas *fast*. Here are some ways you might use Sketch Motion:
+UIs need motion. On the Web, on mobile, on anything with a screen: motion illustrates and delights. There are [many](https://facebook.github.io/origami/) [excellent](http://www.pixate.com/) [tools](http://framerjs.com/) for creating interactive, animated prototypes. However, if you're designing in Sketch, motion currently means a context switch to another application, which slows down your ability to iterate. The intent of Sketch Motion is to provide a lightweight, coding-free method to explore motion ideas *in Sketch* with no context switch. It's not going to replace After Effects or Origami, but it will help you try out motion ideas *fast*. Here are some ways you might use Sketch Motion:
 
 - Explore several UI transitions before jumping into a dedicated prototyping tool
 - Create animated GIFs for use in an Invision, Flinto, or Marvel clickable prototype
