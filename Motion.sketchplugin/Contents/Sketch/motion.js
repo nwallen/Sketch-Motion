@@ -174,7 +174,6 @@ var initAnimations = function(){
     calculateTransitions();
 }
 
-
 var createTween = function(states, targetLayer, containerLayer, timing, animationName, transitionName) {
     var layers = findLayerGroupsWithName(targetLayer.name(), containerLayer);
     var layer = layers[0];
@@ -202,18 +201,6 @@ var createTween = function(states, targetLayer, containerLayer, timing, animatio
     return tween;
 }
 
-var chainTweens = function(tweens, startTime){
-    // chain transitions so they play in sequence
-    for(var t=0; t < tweens.length; t++){
-        if(t+1 < tweens.length){
-            tweens[t].chain(tweens[t+1]);
-        }
-        if(t == 0){
-            tweens[t].start(startTime);
-        }
-    }
-}
-
 var initTweens = function(animation, containerLayer){
     var transitions = animation.transitions;
     // iterate keyframe transitions
@@ -222,9 +209,6 @@ var initTweens = function(animation, containerLayer){
             var layerTransitions = transitions[transition];
             // iterate individual layer transitions
             var tweens = [];
-            var firstKeyframeStartTime = parseInt(animation.keyframes[layerTransitions[0].keyframeIndex].timing.startTime);
-            var firstKeyframeDelay = parseInt(animation.keyframes[layerTransitions[0].keyframeIndex].timing.delay);
-            var startTime = pluginStartTime + (firstKeyframeStartTime - firstKeyframeDelay);
             for(var t=0; t < layerTransitions.length; t++){
                 var layerTransition = layerTransitions[t];
                 var index = layerTransition.keyframeIndex;
@@ -233,8 +217,12 @@ var initTweens = function(animation, containerLayer){
                 var transitionName = getTransitionName(animationName, index - 1, index);
                 var tween = createTween(layerTransition.states, layerTransition.target, containerLayer, timing, animationName, transitionName);
                 tweens[t] = tween;
+
+                var keyframeStartTime = parseInt(timing.startTime);
+                var keyframeDelay = parseInt(timing.delay);
+                var startTime = pluginStartTime + (keyframeStartTime - keyframeDelay);
+                tweens[t].start(startTime);
             }
-            chainTweens(tweens, startTime);
             startPlayhead(animation.name);
         }
     }
