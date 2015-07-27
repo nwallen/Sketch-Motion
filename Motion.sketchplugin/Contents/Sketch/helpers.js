@@ -145,6 +145,7 @@ var animationTimelineName = function(animationName) {
 // TODO: Add style get helpers
 
 var updateLayerProperties = function(properties, layer){
+    if(!layer) return
     var frame = layer.rect();
     if(properties.x != undefined){
         frame.origin.x = properties.x;
@@ -240,7 +241,7 @@ var numberPad = function(number, padding) {
 // mixed name sorting
 // http://www.bennadel.com/blog/2495-user-friendly-sort-of-alpha-numeric-data-in-javascript.htm
 
-normalizeMixedDataValue = function( value ){
+var normalizeMixedDataValue = function( value ){
     var padding = "000000000000000";
     value = value.replace(
         /(\d+)((\.\d+)+)?/g,
