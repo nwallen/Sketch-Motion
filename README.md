@@ -65,14 +65,14 @@ The plugin automatically provides artboards to adjust the timing and easing of e
 - Each block on the timeline represents a transition between tagged artboards
 - Edit the width of a block to change the duration of the transition `1 pixel = 1 millisecond`
 - Adding spacing between blocks will add delay between animations `1 pixel = 1 millisecond` of delay
-- The sequence of the animations cannot be changed on the timeline 
+- The sequence of the transitions cannot be changed on the timeline 
 
 **Adjust Curves with the Legend**
 
 ![legend](http://nwallen.github.io/Sketch-Motion/static/legend.png)
 
 - The legend lists all detected transitions in a single animation 
-- To change the easing of an animation `⌘ command` + click the box showing the easing curve. Drag to the left or right. On previewing the animation, the new easing curve will be applied.
+- To change the easing of a transition, `⌘ command` + click the current easing curve. Drag to the left or right. On previewing the animation, the new easing curve will be applied.
 
 **Export a GIF**
 - To export a GIF of an animation select an artboard containing a player(s) by clicking its name. Then select `Plugins ▸ Motion ▸ Export GIF` from the Sketch toolbar or use the keyboard shortcut `control` + `⌘ command` + `e` 
