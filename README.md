@@ -13,6 +13,8 @@ Early proof-of-concept version tested in sketch 3.3.3 -- use at your own risk
 3. Copy the `Sketch Motion` directory into the plugins folder
 4. Locate the `GIFX` file and double-click (if prompted, give GIFX permission to run)
 
+![Usage](http://nwallen.github.io/Sketch-Motion/static/quickUsageCapture.gif)
+
 ## Usage
 
 **Define Animation Keyframes**
