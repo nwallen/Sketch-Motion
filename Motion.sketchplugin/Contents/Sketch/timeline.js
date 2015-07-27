@@ -17,8 +17,8 @@ var createTimelineSegment = function(x, y, width, height, index, transitionName,
     var rectangle = group.addLayerOfType('rectangle');
     rectangle.setName('timelineSegment');
     updateShapeStyle({
-        fill: '#FAFAFA',
-        border: {color: '#A6A6A6', thickness:1}
+        fill: TIMELINECOLORS.block,
+        border: {color: TIMELINECOLORS.blockBorder, thickness:1}
     }, rectangle)
     updateFrame({
         width: group.rect().size.width,
@@ -31,7 +31,7 @@ var createTimelineSegment = function(x, y, width, height, index, transitionName,
     updateTextStyle({
         font: "HelveticaNeue-Bold",
         size: 45,
-        color: '#A6A6A6'
+        color: TIMELINECOLORS.text
     },text)
     updateFrame({
         width: group.rect().size.width,
@@ -57,7 +57,8 @@ var createLegendDetail = function(k, transitionName, timing){
     index.stringValue = k + '';
     updateTextStyle({
         font: "HelveticaNeue-Bold",
-        size: 35
+        size: 35,
+        color: LEGENDCOLORS.index
     }, index)
     updateFrame({
         x : LEGENDLAYOUT.easeTileWidth + LEGENDLAYOUT.margin,
@@ -70,7 +71,8 @@ var createLegendDetail = function(k, transitionName, timing){
     info.stringValue = transitionName + "\ndelay " + timing.delay + "ms / duration " + timing.duration + "ms";
     updateTextStyle({
         font: "HelveticaNeue-Thin",
-        size: 30
+        size: 30,
+        color: LEGENDCOLORS.info
     }, info)
     updateFrame({
         x : LEGENDLAYOUT.easeTileWidth + LEGENDLAYOUT.margin,
@@ -101,9 +103,11 @@ var initTimelineArtboard = function(animationName, timelineArtboardName){
     var keyframeFrame = firstKeyframe.rect();
     // setup timeline artboard 
     var timelineArtboard = [MSArtboardGroup new];
+    timelineArtboard.setHasBackgroundColor(true);
+    timelineArtboard.setBackgroundColor(MSColor.colorWithSVGString(TIMELINECOLORS.background));
     timelineArtboard.setName(timelineArtboardName);   
     updateFrame({
-        x: keyframeFrame.origin.x,
+        x: keyframeFrame.origin.x + LEGENDLAYOUT.rowWidth + (LEGENDLAYOUT.margin * 3),
         y: keyframeFrame.origin.y + keyframeFrame.size.height + 120,
         height: TIMELINEHEIGHT
     },timelineArtboard)
@@ -123,11 +127,13 @@ var initTimelineLegendArtboard = function(animationName, timelineArtboardName){
     var keyframeFrame = firstKeyframe.rect();
     // setup timeline legend
     var timelineLegendArtboard = [MSArtboardGroup new];
+    timelineLegendArtboard.setHasBackgroundColor(true);
+    timelineLegendArtboard.setBackgroundColor(MSColor.colorWithSVGString(LEGENDCOLORS.background));
     var timelineLegendArtboardName = getLegendName(animationName);
     timelineLegendArtboard.setName(timelineLegendArtboardName);
     updateFrame({
         x: keyframeFrame.origin.x ,
-        y: keyframeFrame.origin.y + keyframeFrame.size.height + 300,
+        y: keyframeFrame.origin.y + keyframeFrame.size.height + 120,
         height: LEGENDLAYOUT.margin,
         width: LEGENDLAYOUT.rowWidth + (LEGENDLAYOUT.margin * 3) 
     }, timelineLegendArtboard)
@@ -279,6 +285,12 @@ var updateTimeline = function(animationName) {
             
         }
     }
+    if(animations[animationName].timelineLegendArtboard){
+        animations[animationName].timelineArtboard.frame().setConstrainProportions(0);
+        updateFrame({
+            height: animations[animationName].timelineLegendArtboard.rect().size.height
+        }, animations[animationName].timelineArtboard)
+    }
     if(segments.length > 0){
            addTimelinePlayhead(animationName, segments);
     }
@@ -328,7 +340,7 @@ var highlightTimelineFrame = function(transitionName, animationName){
         var layers = findLayerGroupsWithName(transitionName, artboard);
         var shapes = findShapeWithName('timelineSegment', layers[0]);
         if(shapes[0]){
-             updateShapeStyle({fill:'#76F6B3'}, shapes[0]);
+             updateShapeStyle({fill:TIMELINECOLORS.highlight}, shapes[0]);
              highlightedSegments[transitionName] = true;
         }
     }
@@ -340,7 +352,7 @@ var unHighlightTimelineFrame = function(transitionName, animationName){
         var layers = findLayerGroupsWithName(transitionName, artboard);
         var shapes = findShapeWithName('timelineSegment', layers[0]);
         if(shapes[0]){
-             updateShapeStyle({fill:'#FAFAFA'}, shapes[0]);
+             updateShapeStyle({fill:TIMELINECOLORS.block}, shapes[0]);
              highlightedSegments[transitionName] = false;
         }
     }
@@ -352,7 +364,7 @@ var highlightLegendName = function(transitionName, animationName){
         var layers = findLayerGroupsWithName(transitionName, artboard);
         var text = findTextWithName('animationInfo', layers[0]);
         if(text[0]){
-             updateTextStyle({color:'#76F6B3'}, text[0]);
+             updateTextStyle({color:LEGENDCOLORS.highlight}, text[0]);
              highlightedLegends[transitionName] = true;
         }
     }
@@ -364,7 +376,7 @@ var unHighlightLegendName = function(transitionName, animationName){
         var layers = findLayerGroupsWithName(transitionName, artboard);
         var text = findTextWithName('animationInfo', layers[0]);
         if(text[0]){
-             updateTextStyle({color:'#000000'}, text[0]);
+             updateTextStyle({color:LEGENDCOLORS.info}, text[0]);
              highlightedLegends[transitionName] = null;
         }
     }

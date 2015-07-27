@@ -5,10 +5,16 @@ var LEGENDLAYOUT = {
     easeTileHeight : 125,
     easeTileWidth : 125,
     margin: 60,
-    rowWidth: 1000,
+    rowWidth: 800,
     textHeight: 50,
 };
-
+var LEGENDCOLORS = {
+    background: "#747373",
+    index: "#FAFAFA",
+    info: "#FAFAFA",
+    curve: "#FAFAFA",
+    highlight: "#76F6B3"
+}
 var ANIMATIONCURVEFILENAME = "easingCurves.png";
 var ANIMATIONCURVEOPTIONS = [
     {ease: TWEEN.Easing.Linear.None},
@@ -19,3 +25,10 @@ var ANIMATIONCURVEOPTIONS = [
     {ease: TWEEN.Easing.Elastic.Out},
     {ease: TWEEN.Easing.Elastic.InOut}
 ];
+var TIMELINECOLORS = {
+    background: "#C7C5C5",
+    block: "#FAFAFA",
+    blockBorder: "#A6A6A6",
+    text: "#A6A6A6",
+    highlight: "#76F6B3"
+}
