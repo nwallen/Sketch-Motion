@@ -2,9 +2,8 @@
 
 Plugin to quickly create, preview, and export motion designs ... in [Sketch](http://bohemiancoding.com/sketch/). 
 
-![Usage](http://nwallen.github.io/Sketch-Motion/static/quickUsageCapture.gif)
-
 **Warning**
+
 Early proof-of-concept version tested in sketch 3.3.3 -- use at your own risk
 
 ## Installation
@@ -14,6 +13,8 @@ Early proof-of-concept version tested in sketch 3.3.3 -- use at your own risk
 4. Locate the `GIFX` file and double-click (if prompted, give GIFX permission to run)
 
 ## Usage
+
+![Usage](http://nwallen.github.io/Sketch-Motion/static/quickUsageCapture.gif)
 
 **Define Animation Keyframes**
 
