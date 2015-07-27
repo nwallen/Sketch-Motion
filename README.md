@@ -1,4 +1,4 @@
-![intro](https://raw.githubusercontent.com/nwallen/Sketch-Motion-Gallery/master/intro/Sketch-Motion-Intro.gif)
+![intro](http://nwallen.github.io/Sketch-Motion/static/Sketch-Motion-Intro.gif)
 
 Plugin to quickly create, preview, and export motion designs ... in [Sketch](http://bohemiancoding.com/sketch/). 
 
