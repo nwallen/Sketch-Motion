@@ -229,15 +229,19 @@ var initTweens = function(animation, containerLayer){
 }
 
 var animate = function() {
-    var animationTime = pluginStartTime; // time when plugin was launched
     var fps = 60;
     // run animation loop
+    var animationStartTime;
     [coscript scheduleWithRepeatingInterval:(1/fps) jsFunction:function(cinterval){
-        TWEEN.update(animationTime);
+        if(animationStartTime == undefined){
+            animationStartTime = Date.now(); //note time of first animation loop
+        }
+        var runTime = Date.now() - animationStartTime; // calculate how long animation has run
+        TWEEN.update(pluginStartTime + runTime); // move animation by runtime
         doc.currentView().refresh();
-        animationTime += 1000/fps;// 1000/fps = ms/frame -- manually increment time to match fps
         // kill loop when tweens are done
         if(TWEEN.getAll().length == 0){
+            //log("animation took " + runTime + "ms to run" );
             [cinterval cancel]
         } 
     }];
@@ -253,7 +257,7 @@ var animateAndSaveGIF = function() {
         TWEEN.update(animationTime);
         doc.currentView().refresh();
         exportArtboardToGIFset(selectedArtboard)
-        animationTime += 1000/fps; // 1000/fps = ms/frame -- manually increment time to match fps
+        animationTime += 1000/fps; // 1000/fps = ms/frame -- manually increment to not drop frames
         // kill loop when tweens are done
         if(TWEEN.getAll().length == 0){
             [cinterval cancel]
