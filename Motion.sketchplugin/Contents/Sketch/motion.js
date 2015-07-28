@@ -1,5 +1,5 @@
 @import 'common.js'
-@import 'Tween.js'
+@import 'libs/Tween.js'
 @import 'constants.js'
 @import 'helpers.js'
 @import 'timeline.js'
