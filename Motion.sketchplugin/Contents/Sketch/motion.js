@@ -1,3 +1,5 @@
+var SM = SM || {}; // global to namespace plugin
+
 @import 'common.js'
 @import 'libs/Tween.js'
 @import 'constants.js'
@@ -8,27 +10,26 @@
 
 var doc;
 var selection;
-var selectedArtboard;
 var pluginPath;
-var pluginStartTime; // used to sync all animations
-var animations = {};
 
-var onStart = function(context){
+SM.animations = SM.animations || {};
+
+SM.onStart = function(context){
     //TODO: resolve bug -- calling script multiple times in quick succession crashes Sketch
     [[COScript currentCOScript] setShouldKeepAround:true]
     doc = context.document;
     selection = context.selection;
-    pluginStartTime = Date.now()
+    SM.pluginStartTime = Date.now(); // used to sync all animations
     var scriptPath = context.scriptPath;
     var pluginFolder = scriptPath.match(/Plugins\/([\w -])*/)[0] + "/";
     var basePath = scriptPath.split("Plugins")[0];
     pluginPath = basePath + pluginFolder
 
     // Find animation artboards (keyframes)
-    initAnimations();
+    SM.initAnimations();
 }
 
-var compareLayerProperties = function(inFrameLayer, outFrameLayer){
+SM.compareLayerProperties = function(inFrameLayer, outFrameLayer){
     var states = {
         in: {},
         out:{}
@@ -77,7 +78,7 @@ var compareLayerProperties = function(inFrameLayer, outFrameLayer){
     return states
 }
 
-var compareKeyframes = function(inFrame, outFrame){
+SM.compareKeyframes = function(inFrame, outFrame){
     var transitions = [];
     deDupeGroupNames(inFrame);
     deDupeGroupNames(outFrame);
@@ -94,7 +95,7 @@ var compareKeyframes = function(inFrame, outFrame){
                 //search for same group in the outFrame artboard
                 if(inFrameLayerName == outFrameLayerName && outFrameLayer.isMemberOfClass(MSLayerGroup)){  
                     //if properties are different save states
-                    var states =  compareLayerProperties(inFrameLayer, outFrameLayer);
+                    var states =  SM.compareLayerProperties(inFrameLayer, outFrameLayer);
                     if(states != null){
                         var transition = {
                             target: inFrameLayer,
@@ -110,10 +111,10 @@ var compareKeyframes = function(inFrame, outFrame){
     return transitions;
 }
 
-var calculateTransitions = function(){
-    for(var animationName in animations){
-        if(animations.hasOwnProperty(animationName)){
-            var animation = animations[animationName];
+SM.calculateTransitions = function(){
+    for(var animationName in SM.animations){
+        if(SM.animations.hasOwnProperty(animationName)){
+            var animation = SM.animations[animationName];
             var keyframeCount = animation.keyframes.length;
             var transitionCount = keyframeCount - 1; // always one less transition than keyframes
             if(transitionCount === 0) continue;
@@ -122,7 +123,7 @@ var calculateTransitions = function(){
             for(var t=0; t < transitionCount; t++){
                 var inFrame = animation.keyframes[t].layer; // starting artboard
                 var outFrame = animation.keyframes[t+1].layer; // ending artboard
-                var transitions = compareKeyframes(inFrame, outFrame); // compare groups on artboards
+                var transitions = SM.compareKeyframes(inFrame, outFrame); // compare groups on artboards
                 for(var i=0; i < transitions.length; i++){
                     var transition = transitions[i];
                     transition.keyframeIndex = t + 1; // corresponding keyframe is outFrame
@@ -136,7 +137,7 @@ var calculateTransitions = function(){
 }
 
 
-var initAnimations = function(){
+SM.initAnimations = function(){
     // Detect and save all tagged animations in document
     // Check artboards on all document pages
     var pages = doc.pages();
@@ -148,9 +149,9 @@ var initAnimations = function(){
             if(layer.isMemberOfClass(MSArtboardGroup)){
                 var animationName = checkForAnimationReference(layer.name())
                 if(animationName){
-                    animations[animationName] = animations[animationName] || {};
-                    animations[animationName].name = animationName[0];
-                    animations[animationName].keyframes = animations[animationName].keyframes || [];
+                    SM.animations[animationName] = SM.animations[animationName] || {};
+                    SM.animations[animationName].name = animationName[0];
+                    SM.animations[animationName].keyframes = SM.animations[animationName].keyframes || [];
                     var keyframe = {
                         layer: layer,
                         timing: {
@@ -160,8 +161,8 @@ var initAnimations = function(){
                             easing: TWEEN.Easing.Linear.None
                         }
                     }
-                    animations[animationName].keyframes.push(keyframe);
-                    animations[animationName].keyframes.sort(function(a,b){
+                    SM.animations[animationName].keyframes.push(keyframe);
+                    SM.animations[animationName].keyframes.sort(function(a,b){
                         var aMixed = normalizeMixedDataValue( a.layer.name() );
                         var bMixed = normalizeMixedDataValue( b.layer.name() );
                         return( aMixed < bMixed ? -1 : 1 );
@@ -170,11 +171,11 @@ var initAnimations = function(){
             }
         }
     }
-    refreshAnimationTimelines();
-    calculateTransitions();
+    SM.refreshAnimationTimelines();
+    SM.calculateTransitions();
 }
 
-var createTween = function(states, targetLayer, containerLayer, timing, animationName, transitionName) {
+SM.createTween = function(states, targetLayer, containerLayer, timing, animationName, transitionName) {
     var layers = findLayerGroupsWithName(targetLayer.name(), containerLayer);
     var layer = layers[0];
     var tween = new TWEEN.Tween(states.in)
@@ -184,15 +185,15 @@ var createTween = function(states, targetLayer, containerLayer, timing, animatio
             .onStart(function(){
                 //log('animation start ' + targetLayer.name() + " ---- ")
                 if(animationName && transitionName){
-                    highlightTimelineFrame(transitionName, animationName);
-                    highlightLegendName(transitionName, animationName);
+                    SM.highlightTimelineFrame(transitionName, animationName);
+                    SM.highlightLegendName(transitionName, animationName);
                 }
             })
             .onComplete(function(){
                 //log('animation stop ' + targetLayer.name()) 
                 if(animationName && transitionName){
-                    unHighlightTimelineFrame(transitionName, animationName);
-                    unHighlightLegendName(transitionName, animationName);
+                    SM.unHighlightTimelineFrame(transitionName, animationName);
+                    SM.unHighlightLegendName(transitionName, animationName);
                 }
             })
             .onUpdate(function(){ 
@@ -201,7 +202,7 @@ var createTween = function(states, targetLayer, containerLayer, timing, animatio
     return tween;
 }
 
-var initTweens = function(animation, containerLayer){
+SM.initTweens = function(animation, containerLayer){
     var transitions = animation.transitions;
     // iterate keyframe transitions
     for(var transition in transitions){
@@ -215,20 +216,20 @@ var initTweens = function(animation, containerLayer){
                 var timing = animation.keyframes[index].timing;
                 var animationName = animation.name;
                 var transitionName = getTransitionName(animationName, index - 1, index);
-                var tween = createTween(layerTransition.states, layerTransition.target, containerLayer, timing, animationName, transitionName);
+                var tween = SM.createTween(layerTransition.states, layerTransition.target, containerLayer, timing, animationName, transitionName);
                 tweens[t] = tween;
 
                 var keyframeStartTime = parseInt(timing.startTime);
                 var keyframeDelay = parseInt(timing.delay);
-                var startTime = pluginStartTime + (keyframeStartTime - keyframeDelay);
+                var startTime = SM.pluginStartTime + (keyframeStartTime - keyframeDelay);
                 tweens[t].start(startTime);
             }
-            startPlayhead(animation.name);
+            SM.startPlayhead(animation.name);
         }
     }
 }
 
-var animate = function() {
+SM.animate = function() {
     var fps = 60;
     // run animation loop
     var animationStartTime;
@@ -237,7 +238,7 @@ var animate = function() {
             animationStartTime = Date.now(); //note time of first animation loop
         }
         var runTime = Date.now() - animationStartTime; // calculate how long animation has run
-        TWEEN.update(pluginStartTime + runTime); // move animation by runtime
+        TWEEN.update(SM.pluginStartTime + runTime); // move animation by runtime
         doc.currentView().refresh();
         // kill loop when tweens are done
         if(TWEEN.getAll().length == 0){
@@ -247,27 +248,27 @@ var animate = function() {
     }];
 }
 
-var animateAndSaveGIF = function() {
-    var animationTime = pluginStartTime; //  time when plugin was launched
-    var exportOptions = exportOptionsDialog();
+SM.animateAndSaveGIF = function() {
+    var animationTime = SM.pluginStartTime; //  time when plugin was launched
+    var exportOptions = SM.exportOptionsDialog();
     var fps = exportOptions.fps || 30;
     var loops = exportOptions.loops;
-    initGIFexport();
+    SM.initGIFexport();
     [coscript scheduleWithRepeatingInterval:(1/fps) jsFunction:function(cinterval){
         TWEEN.update(animationTime);
         doc.currentView().refresh();
-        exportArtboardToGIFset(selectedArtboard)
+        SM.exportArtboardToGIFset(SM.selectedArtboard)
         animationTime += 1000/fps; // 1000/fps = ms/frame -- manually increment to not drop frames
         // kill loop when tweens are done
         if(TWEEN.getAll().length == 0){
             [cinterval cancel]
-            createGIF(fps, loops);
+            SM.createGIF(fps, loops);
         } 
     }];
 }
 
-var playAnimation = function(name, containerLayer){
-    var targetAnimation = animations[name];
+SM.playAnimation = function(name, containerLayer){
+    var targetAnimation = SM.animations[name];
     // Clear target group(s) on selected artboard 
     var children = [containerLayer children]
     for(var c=0; c < [children count]; c++){
@@ -289,13 +290,13 @@ var playAnimation = function(name, containerLayer){
         containerLayer.addLayers([layerCopy]);
     }
     // flatten artwork for better performance
-    flattenArtwork(containerLayer);
+    SM.flattenArtwork(containerLayer);
     // create tweens
-    initTweens(targetAnimation, containerLayer);
+    SM.initTweens(targetAnimation, containerLayer);
 }
 
-var playAnimations = function(context, playAndExport){
-    onStart(context); // init animations and globals
+SM.playAnimations = function(context, playAndExport){
+    SM.onStart(context); // init animations and globals
     var artboards = [];
     for(var s=0; s < [selection count]; s++){
         if(selection[s].isMemberOfClass(MSArtboardGroup)){
@@ -309,7 +310,7 @@ var playAnimations = function(context, playAndExport){
     }
     else {
         doc.showMessage("animating...")
-        selectedArtboard = artboards[0];
+        SM.selectedArtboard = artboards[0];
         // Find animation(s) referenced in selected artboard
         var artboardChildren = artboards[0].children();
         for(var l=0; l < [artboardChildren count]; l++){
@@ -318,20 +319,23 @@ var playAnimations = function(context, playAndExport){
             if(child.isMemberOfClass(MSLayerGroup)){
                 var animationName = checkForAnimationReference(childName);
                 if(animationName){
-                     playAnimation(animationName, child);
+                     SM.playAnimation(animationName, child);
                 }
             }
         }
         if(playAndExport){
-            animateAndSaveGIF();
+            SM.animateAndSaveGIF();
         }
         else {
-            animate();
+            SM.animate();
         }
     }
 }
 
-var exportGIF = function(context){
-    playAnimations(context, true);
+SM.exportGIF = function(context){
+    SM.playAnimations(context, true);
 }
 
+// non-namespaced methods provided for sketch plugin commands
+var playAnimations = SM.playAnimations;
+var exportGIF = SM.exportGIF;

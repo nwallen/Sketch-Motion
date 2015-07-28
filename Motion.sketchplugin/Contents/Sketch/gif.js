@@ -1,41 +1,38 @@
 // GIF Export
 // Adapted from github.com/nathco/Generate-GIF
 
-var gifx, gifPath, tempPath, string, gifsetPath;
-var gifSetIndex;
 var gifFileManager;
-//var exportDebugPath;
 
-var initGIFexport = function() {
-    gifx = pluginPath + "GIFX";
-    gifPath = savePath();
-    tempPath = NSTemporaryDirectory();
+SM.initGIFexport = function() {
+    SM.gifx = pluginPath + "GIFX";
+    SM.gifPath = SM.savePath();
+    var tempPath = NSTemporaryDirectory();
     var string = [[NSProcessInfo processInfo] globallyUniqueString];
-    gifsetPath = [tempPath stringByAppendingPathComponent: string + @".gifset"];
+    SM.gifsetPath = [tempPath stringByAppendingPathComponent: string + @".gifset"];
 
     gifFileManager = [NSFileManager defaultManager]
-    [gifFileManager createDirectoryAtPath:gifsetPath withIntermediateDirectories:true attributes:nil error:nil]
+    [gifFileManager createDirectoryAtPath:SM.gifsetPath withIntermediateDirectories:true attributes:nil error:nil]
 
-    gifSetIndex = 1;
+    SM.gifSetIndex = 1;
 }
 
-var exportArtboardToGIFset = function(artboard){
+SM.exportArtboardToGIFset = function(artboard){
     var artboardName = artboard.name();
-    var gifFileComponent = numberPad(gifSetIndex, 8) + ".png";
-    var fileName = [gifsetPath stringByAppendingPathComponent: gifFileComponent]
+    var gifFileComponent = numberPad(SM.gifSetIndex, 8) + ".png";
+    var fileName = SM.gifsetPath.stringByAppendingPathComponent(gifFileComponent);
     [doc saveArtboardOrSlice:artboard toFile:fileName]
-    gifSetIndex ++;
+    SM.gifSetIndex ++;
 }
 
-var createGIF = function(fps, loops) {
+SM.createGIF = function(fps, loops) {
     var loop = "-l";
     if(loops > 1 ) loop += (loops - 1)
     if(loops == 1 ) loop = "" 
     var delay = Math.round((1000/fps) / 10)
     var convertTask = [[NSTask alloc] init]
     var createsTask = [[NSTask alloc] init]
-    var convertGIF = "find \"" + gifsetPath + "\" -name '*.png' -exec sips -s format gif -o {}.gif {} \\;"
-    var option = "find \"" + gifsetPath + "\" -name '*.png.gif' -execdir bash -c '\"" + gifx + "\" " + loop + " -d " +  delay + " '*.png.gif' -o \"" + gifPath + "\"' \\;"
+    var convertGIF = "find \"" + SM.gifsetPath + "\" -name '*.png' -exec sips -s format gif -o {}.gif {} \\;"
+    var option = "find \"" + SM.gifsetPath + "\" -name '*.png.gif' -execdir bash -c '\"" + SM.gifx + "\" " + loop + " -d " +  delay + " '*.png.gif' -o \"" + SM.gifPath + "\"' \\;"
 
     [doc showMessage:@"Saving GIF..."]
 
@@ -62,10 +59,10 @@ var createGIF = function(fps, loops) {
         [doc showMessage:@"Export Failed..."]
     } 
  
-    [gifFileManager removeItemAtPath:gifsetPath error:nil]  
+    [gifFileManager removeItemAtPath:SM.gifsetPath error:nil]  
 }
 
-var exportOptionsDialog = function(){
+SM.exportOptionsDialog = function(){
     var alert = COSAlertWindow.new();
     alert.setMessageText("GIF export options");
     // FPS
@@ -84,7 +81,7 @@ var exportOptionsDialog = function(){
     return { fps: parseInt(alert.viewAtIndex(1).stringValue()), loops: parseInt(alert.viewAtIndex(5).stringValue()) }
 }
 
-var savePath =  function() {
+SM.savePath =  function() {
     var filePath = [doc fileURL] ? [[[doc fileURL] path] stringByDeletingLastPathComponent] : @"~"
     var fileName = [[doc displayName] stringByDeletingPathExtension]
     var savePanel = [NSSavePanel savePanel]

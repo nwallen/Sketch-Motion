@@ -1,8 +1,8 @@
 // Manage timeline UI elements
-var highlightedLegends = {};
-var highlightedSegments = {};
+SM.highlightedLegends = {};
+SM.highlightedSegments = {};
 
-var createTimelineSegment = function(x, y, width, height, index, transitionName, timelineArtboard){
+SM.createTimelineSegment = function(x, y, width, height, index, transitionName, timelineArtboard){
     // group
     var group = timelineArtboard.addLayerOfType('group');
     group.setName(transitionName);
@@ -43,7 +43,7 @@ var createTimelineSegment = function(x, y, width, height, index, transitionName,
     return group;
 }
 
-var createLegendDetail = function(k, transitionName, timing){
+SM.createLegendDetail = function(k, transitionName, timing){
     var detail = [MSLayerGroup new]
     updateFrame({
         x : LEGENDLAYOUT.margin,
@@ -98,8 +98,8 @@ var createLegendDetail = function(k, transitionName, timing){
     return detail
 }
 
-var initTimelineArtboard = function(animationName, timelineArtboardName){
-    var animationKeyframes = animations[animationName].keyframes;
+SM.initTimelineArtboard = function(animationName, timelineArtboardName){
+    var animationKeyframes = SM.animations[animationName].keyframes;
     var firstKeyframe = animationKeyframes[0].layer;
     var keyframeFrame = firstKeyframe.rect();
     // setup timeline artboard 
@@ -115,15 +115,15 @@ var initTimelineArtboard = function(animationName, timelineArtboardName){
      // don't maintain proportions on resize
     timelineArtboard.frame().setConstrainProportions(0);
     // save reference to artboards in animation config object
-    animations[animationName].timelineArtboard = timelineArtboard;
+    SM.animations[animationName].timelineArtboard = timelineArtboard;
     // add artboard to page
     doc.currentPage().addLayers([timelineArtboard]);
     // add segments and details
-    updateTimeline(animationName);        
+    SM.updateTimeline(animationName);        
 }
 
-var initTimelineLegendArtboard = function(animationName, timelineArtboardName){
-    var animationKeyframes = animations[animationName].keyframes;
+SM.initTimelineLegendArtboard = function(animationName, timelineArtboardName){
+    var animationKeyframes = SM.animations[animationName].keyframes;
     var firstKeyframe = animationKeyframes[0].layer;
     var keyframeFrame = firstKeyframe.rect();
     // setup timeline legend
@@ -141,26 +141,26 @@ var initTimelineLegendArtboard = function(animationName, timelineArtboardName){
     // don't maintain proportions on resize
     timelineLegendArtboard.frame().setConstrainProportions(0);
     // save reference to artboards in animation config object
-    animations[animationName].timelineLegendArtboard = timelineLegendArtboard;
+    SM.animations[animationName].timelineLegendArtboard = timelineLegendArtboard;
     // add artboard to page
     doc.currentPage().addLayers([timelineLegendArtboard]);
     // add segments and details
-    updateTimelineLegend(animationName);        
+    SM.updateTimelineLegend(animationName);        
 }
 
-var matchTimelineHeightToLegendHeight = function(animationName){
-    if(animations[animationName].timelineArtboard && animations[animationName].timelineLegendArtboard){
-        animations[animationName].timelineArtboard.frame().setConstrainProportions(0);
+SM.matchTimelineHeightToLegendHeight = function(animationName){
+    if(SM.animations[animationName].timelineArtboard && SM.animations[animationName].timelineLegendArtboard){
+        SM.animations[animationName].timelineArtboard.frame().setConstrainProportions(0);
         updateFrame({
-            height: animations[animationName].timelineLegendArtboard.rect().size.height
-        }, animations[animationName].timelineArtboard)
-        addTimelinePlayhead(animationName);
+            height: SM.animations[animationName].timelineLegendArtboard.rect().size.height
+        }, SM.animations[animationName].timelineArtboard)
+        SM.addTimelinePlayhead(animationName);
     }
 }
 
-var updateTimelineLegend = function(animationName){
-    var animationKeyframes = animations[animationName].keyframes;
-    var details = animations[animationName].timelineLegendArtboard.layers();
+SM.updateTimelineLegend = function(animationName){
+    var animationKeyframes = SM.animations[animationName].keyframes;
+    var details = SM.animations[animationName].timelineLegendArtboard.layers();
     var prevGroup = null;
     // check for extra details
     if(details.count() > (animationKeyframes.length-1)){
@@ -169,9 +169,9 @@ var updateTimelineLegend = function(animationName){
         for(var d=0; d < delta; d++){
             var detailToDelete = details.objectAtIndex(details.count() - 1);
             [detailToDelete removeFromParent];
-            animations[animationName].timelineLegendArtboard.frame().setConstrainProportions(0);
-            animations[animationName].timelineLegendArtboard.frame().subtractHeight(LEGENDLAYOUT.easeTileHeight + LEGENDLAYOUT.margin);
-            matchTimelineHeightToLegendHeight(animationName);
+            SM.animations[animationName].timelineLegendArtboard.frame().setConstrainProportions(0);
+            SM.animations[animationName].timelineLegendArtboard.frame().subtractHeight(LEGENDLAYOUT.easeTileHeight + LEGENDLAYOUT.margin);
+            SM.matchTimelineHeightToLegendHeight(animationName);
         }
     }
     for( var k=1;k < animationKeyframes.length; k++){
@@ -181,11 +181,11 @@ var updateTimelineLegend = function(animationName){
         // update details
         if((k-1) > (details.count() - 1)){
             // no details -- add new detail set
-            var detail =  createLegendDetail(k, transitionName, timing);
-            animations[animationName].timelineLegendArtboard.addLayers([detail]);
-            animations[animationName].timelineLegendArtboard.frame().setConstrainProportions(0);
-            animations[animationName].timelineLegendArtboard.frame().addHeight(LEGENDLAYOUT.easeTileHeight + LEGENDLAYOUT.margin)
-            matchTimelineHeightToLegendHeight(animationName);
+            var detail =  SM.createLegendDetail(k, transitionName, timing);
+            SM.animations[animationName].timelineLegendArtboard.addLayers([detail]);
+            SM.animations[animationName].timelineLegendArtboard.frame().setConstrainProportions(0);
+            SM.animations[animationName].timelineLegendArtboard.frame().addHeight(LEGENDLAYOUT.easeTileHeight + LEGENDLAYOUT.margin)
+            SM.matchTimelineHeightToLegendHeight(animationName);
         }
         else {
             // details exist - update 
@@ -197,7 +197,7 @@ var updateTimelineLegend = function(animationName){
                 textToUpdate.stringValue = transitionName + "\ndelay " + timing.delay + "ms / duration " + timing.duration + "ms";   
             }
            
-            var extractedEasing = extractEasingCurve(transitionName, animationName);
+            var extractedEasing = SM.extractEasingCurve(transitionName, animationName);
             if(extractedEasing){
                 timing.easing = extractedEasing.ease;
                 timing.easingIndex = extractedEasing.easingIndex;
@@ -215,8 +215,8 @@ var updateTimelineLegend = function(animationName){
     }
 }
 
-var addTimelinePlayhead = function(animationName){
-    var artboard = animations[animationName].timelineArtboard;
+SM.addTimelinePlayhead = function(animationName){
+    var artboard = SM.animations[animationName].timelineArtboard;
     var rectangle = findShapeWithName('playhead', artboard)[0];
     var segments = filterLayersByName('timelineSegment', artboard.layers());
     // add playhead
@@ -231,7 +231,7 @@ var addTimelinePlayhead = function(animationName){
     rectangle.frame().setHeight(artboard.frame().height());
     var lastSegment = segments[segments.length-1];
     var timelineEndX = lastSegment.frame().x() + lastSegment.frame().width();
-    animations[animationName].timelineTween = new TWEEN.Tween({x:0})
+    SM.animations[animationName].timelineTween = new TWEEN.Tween({x:0})
             .to({x:timelineEndX} , (timelineEndX * MSPERPIXEL))
             .onUpdate(function(){
                 rectangle.frame().setX(this.x);
@@ -241,13 +241,13 @@ var addTimelinePlayhead = function(animationName){
             });
 }
 
-var startPlayhead = function(animationName){
-    animations[animationName].timelineTween.start(pluginStartTime);
+SM.startPlayhead = function(animationName){
+    SM.animations[animationName].timelineTween.start(SM.pluginStartTime);
 }
 
-var updateTimeline = function(animationName) {
-    var animationKeyframes = animations[animationName].keyframes;
-    var segments = animations[animationName].timelineArtboard.layers();
+SM.updateTimeline = function(animationName) {
+    var animationKeyframes = SM.animations[animationName].keyframes;
+    var segments = SM.animations[animationName].timelineArtboard.layers();
     segments = filterLayersByName('timelineSegment', segments);
     var prevSegment = null;
     // check for extra segments
@@ -258,8 +258,8 @@ var updateTimeline = function(animationName) {
             var segmentToDelete = segments[segments.length - 1];
             [segmentToDelete removeFromParent];
             segments.pop();
-            animations[animationName].timelineArtboard.frame().setConstrainProportions(0);
-            animations[animationName].timelineArtboard.frame().subtractWidth(500);
+            SM.animations[animationName].timelineArtboard.frame().setConstrainProportions(0);
+            SM.animations[animationName].timelineArtboard.frame().subtractWidth(500);
         }
     }
     for( var k=1;k < animationKeyframes.length; k++){
@@ -279,14 +279,14 @@ var updateTimeline = function(animationName) {
                 timing.startTime = x;
 
             }
-            animations[animationName].timelineArtboard.frame().setConstrainProportions(0);
-            animations[animationName].timelineArtboard.frame().addWidth(width + 100);
-            prevSegment = createTimelineSegment(x, y, width, height, k, transitionName, animations[animationName].timelineArtboard);
+            SM.animations[animationName].timelineArtboard.frame().setConstrainProportions(0);
+            SM.animations[animationName].timelineArtboard.frame().addWidth(width + 100);
+            prevSegment = SM.createTimelineSegment(x, y, width, height, k, transitionName, SM.animations[animationName].timelineArtboard);
         }
         else{
             // segment exists -- update animation config based on segment position
             var segment = segments[k-1]; // segment indexes are offset by 1
-            var newTiming = extractAnimationValues(prevSegment, segment);
+            var newTiming = SM.extractAnimationValues(prevSegment, segment);
             timing.delay = newTiming.delay;
             timing.duration = newTiming.duration;
             timing.startTime = newTiming.startTime;
@@ -300,12 +300,12 @@ var updateTimeline = function(animationName) {
             
         }
     }
-    matchTimelineHeightToLegendHeight(animationName);
-    addTimelinePlayhead(animationName);
+    SM.matchTimelineHeightToLegendHeight(animationName);
+    SM.addTimelinePlayhead(animationName);
 }
 
-var extractEasingCurve = function(transitionName, animationName){
-    var artboard = animations[animationName].timelineLegendArtboard;
+SM.extractEasingCurve = function(transitionName, animationName){
+    var artboard = SM.animations[animationName].timelineLegendArtboard;
     var group = findLayerGroupsWithName(transitionName, artboard)
     var imageLayers = findImageWithName('animationCurve', group[0]);
     if(imageLayers[0]){
@@ -315,7 +315,7 @@ var extractEasingCurve = function(transitionName, animationName){
     }
 }
 
-var extractAnimationValues = function(prev, current){
+SM.extractAnimationValues = function(prev, current){
     var currentFrame = current.rect();
     var returnObj = {};
 
@@ -331,82 +331,82 @@ var extractAnimationValues = function(prev, current){
     return returnObj; 
 }
 
-var getAnimationValuesFromTimelineArtboard = function(animationName, timelineArtboardName){
+SM.getAnimationValuesFromTimelineArtboard = function(animationName, timelineArtboardName){
     // find the relevant artboards
     var timelineArtboard = getArtboardsWithNameInDocument(timelineArtboardName);
     var timelineLegendArtboard = getArtboardsWithNameInDocument(getLegendName(animationName));
     // save in animation config object
-    animations[animationName].timelineArtboard = timelineArtboard[0];
-    animations[animationName].timelineLegendArtboard = timelineLegendArtboard[0];
-    updateTimeline(animationName);
-    updateTimelineLegend(animationName);
+    SM.animations[animationName].timelineArtboard = timelineArtboard[0];
+    SM.animations[animationName].timelineLegendArtboard = timelineLegendArtboard[0];
+    SM.updateTimeline(animationName);
+    SM.updateTimelineLegend(animationName);
 }
 
-var highlightTimelineFrame = function(transitionName, animationName){
-    if(!highlightedSegments[transitionName]){
-        var artboard = animations[animationName].timelineArtboard;
+SM.highlightTimelineFrame = function(transitionName, animationName){
+    if(!SM.highlightedSegments[transitionName]){
+        var artboard = SM.animations[animationName].timelineArtboard;
         var layers = findLayerGroupsWithName(transitionName, artboard);
         var shapes = findShapeWithName('timelineSegment', layers[0]);
         if(shapes[0]){
              updateShapeStyle({fill:TIMELINECOLORS.highlight}, shapes[0]);
-             highlightedSegments[transitionName] = true;
+             SM.highlightedSegments[transitionName] = true;
         }
     }
 }
 
-var unHighlightTimelineFrame = function(transitionName, animationName){
-    if(highlightedSegments[transitionName]){
-        var artboard = animations[animationName].timelineArtboard;
+SM.unHighlightTimelineFrame = function(transitionName, animationName){
+    if(SM.highlightedSegments[transitionName]){
+        var artboard = SM.animations[animationName].timelineArtboard;
         var layers = findLayerGroupsWithName(transitionName, artboard);
         var shapes = findShapeWithName('timelineSegment', layers[0]);
         if(shapes[0]){
              updateShapeStyle({fill:TIMELINECOLORS.block}, shapes[0]);
-             highlightedSegments[transitionName] = false;
+             SM.highlightedSegments[transitionName] = false;
         }
     }
 }
 
-var highlightLegendName = function(transitionName, animationName){
-    if(!highlightedLegends[transitionName]){
-        var artboard = animations[animationName].timelineLegendArtboard;
+SM.highlightLegendName = function(transitionName, animationName){
+    if(!SM.highlightedLegends[transitionName]){
+        var artboard = SM.animations[animationName].timelineLegendArtboard;
         var layers = findLayerGroupsWithName(transitionName, artboard);
         var text = findTextWithName('animationInfo', layers[0]);
         if(text[0]){
              updateTextStyle({color:LEGENDCOLORS.highlight}, text[0]);
-             highlightedLegends[transitionName] = true;
+             SM.highlightedLegends[transitionName] = true;
         }
     }
 }
 
-var unHighlightLegendName = function(transitionName, animationName){
-    if(highlightedLegends[transitionName]){
-        var artboard = animations[animationName].timelineLegendArtboard;
+SM.unHighlightLegendName = function(transitionName, animationName){
+    if(SM.highlightedLegends[transitionName]){
+        var artboard = SM.animations[animationName].timelineLegendArtboard;
         var layers = findLayerGroupsWithName(transitionName, artboard);
         var text = findTextWithName('animationInfo', layers[0]);
         if(text[0]){
              updateTextStyle({color:LEGENDCOLORS.info}, text[0]);
-             highlightedLegends[transitionName] = null;
+             SM.highlightedLegends[transitionName] = null;
         }
     }
 }
 
-var refreshAnimationTimeline = function(animationName){
+SM.refreshAnimationTimeline = function(animationName){
     var timelineArtboardName = animationTimelineName(animationName);
     var timelineLegendArtboardName = getLegendName(animationName);
     //check for existing timeline artboard
     if(!artboardWithNameExistsInDocument(timelineArtboardName)){
-        initTimelineArtboard(animationName, timelineArtboardName);
+        SM.initTimelineArtboard(animationName, timelineArtboardName);
     }
     if(!artboardWithNameExistsInDocument(timelineLegendArtboardName)){
-        initTimelineLegendArtboard(animationName, timelineLegendArtboardName);   
+        SM.initTimelineLegendArtboard(animationName, timelineLegendArtboardName);   
     }
-    getAnimationValuesFromTimelineArtboard(animationName, timelineArtboardName);
+    SM.getAnimationValuesFromTimelineArtboard(animationName, timelineArtboardName);
 }
 
-var refreshAnimationTimelines = function(){
-    for(var animationName in animations){
-        if(animations.hasOwnProperty(animationName)){
-            refreshAnimationTimeline(animationName);
+SM.refreshAnimationTimelines = function(){
+    for(var animationName in SM.animations){
+        if(SM.animations.hasOwnProperty(animationName)){
+            SM.refreshAnimationTimeline(animationName);
         }
     }
 }

@@ -122,7 +122,7 @@ var getLegendName = function(animationName){
 }
 
 var getTransitionName = function(animationName, startKeyframeIndex, endKeyframeIndex){
-    return stripTagSymbols(animations[animationName].keyframes[startKeyframeIndex].layer.name()) + " > " + stripTagSymbols(animations[animationName].keyframes[endKeyframeIndex].layer.name());
+    return stripTagSymbols(SM.animations[animationName].keyframes[startKeyframeIndex].layer.name()) + " > " + stripTagSymbols(SM.animations[animationName].keyframes[endKeyframeIndex].layer.name());
 }
 
 var getCurveSelectorName = function(transitionName){

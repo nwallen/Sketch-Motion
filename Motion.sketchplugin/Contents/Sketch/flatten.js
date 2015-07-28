@@ -1,6 +1,6 @@
 // flattening artwork for faster animation
 
-var flattenArtwork = function(container){
+SM.flattenArtwork = function(container){
     var layers = container.layers();
     var layersToFlatten = [];
     for(var i=0; i < layers.count(); i++){
@@ -10,7 +10,7 @@ var flattenArtwork = function(container){
             doc.documentData().layerSymbols().unregisterInstance(layer);
         }
         if(layer.isMemberOfClass(MSLayerGroup)){
-            flattenArtwork(layer);
+            SM.flattenArtwork(layer);
         }
         else {
             layersToFlatten.push(layer);
@@ -18,11 +18,11 @@ var flattenArtwork = function(container){
     }
     
     if(layersToFlatten.length > 0){
-        replaceLayersWithImage(layersToFlatten, container);
+        SM.replaceLayersWithImage(layersToFlatten, container);
     }
 }
 
-var replaceLayersWithImage = function(layers, container){
+SM.replaceLayersWithImage = function(layers, container){
     var tempPath = NSTemporaryDirectory();
     var exportDebugPath = pluginPath + '/temp/';
     var string = [[NSProcessInfo processInfo] globallyUniqueString];
