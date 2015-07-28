@@ -30,10 +30,11 @@ var createTimelineSegment = function(x, y, width, height, index, transitionName,
     text.stringValue =  index + "";
     updateTextStyle({
         font: "HelveticaNeue-Bold",
-        size: 45,
+        size: 55,
         color: TIMELINECOLORS.text
     },text)
     updateFrame({
+        y: TIMELINELAYOUT.height * .2,
         width: group.rect().size.width,
         height: group.rect().size.height
     }, text)
@@ -109,7 +110,7 @@ var initTimelineArtboard = function(animationName, timelineArtboardName){
     updateFrame({
         x: keyframeFrame.origin.x + LEGENDLAYOUT.rowWidth + (LEGENDLAYOUT.margin * 3),
         y: keyframeFrame.origin.y + keyframeFrame.size.height + 120,
-        height: TIMELINEHEIGHT
+        height: TIMELINELAYOUT.height
     },timelineArtboard)
      // don't maintain proportions on resize
     timelineArtboard.frame().setConstrainProportions(0);
@@ -147,6 +148,16 @@ var initTimelineLegendArtboard = function(animationName, timelineArtboardName){
     updateTimelineLegend(animationName);        
 }
 
+var matchTimelineHeightToLegendHeight = function(animationName){
+    if(animations[animationName].timelineArtboard && animations[animationName].timelineLegendArtboard){
+        animations[animationName].timelineArtboard.frame().setConstrainProportions(0);
+        updateFrame({
+            height: animations[animationName].timelineLegendArtboard.rect().size.height
+        }, animations[animationName].timelineArtboard)
+        addTimelinePlayhead(animationName);
+    }
+}
+
 var updateTimelineLegend = function(animationName){
     var animationKeyframes = animations[animationName].keyframes;
     var details = animations[animationName].timelineLegendArtboard.layers();
@@ -160,6 +171,7 @@ var updateTimelineLegend = function(animationName){
             [detailToDelete removeFromParent];
             animations[animationName].timelineLegendArtboard.frame().setConstrainProportions(0);
             animations[animationName].timelineLegendArtboard.frame().subtractHeight(LEGENDLAYOUT.easeTileHeight + LEGENDLAYOUT.margin);
+            matchTimelineHeightToLegendHeight(animationName);
         }
     }
     for( var k=1;k < animationKeyframes.length; k++){
@@ -173,6 +185,7 @@ var updateTimelineLegend = function(animationName){
             animations[animationName].timelineLegendArtboard.addLayers([detail]);
             animations[animationName].timelineLegendArtboard.frame().setConstrainProportions(0);
             animations[animationName].timelineLegendArtboard.frame().addHeight(LEGENDLAYOUT.easeTileHeight + LEGENDLAYOUT.margin)
+            matchTimelineHeightToLegendHeight(animationName);
         }
         else {
             // details exist - update 
@@ -202,9 +215,10 @@ var updateTimelineLegend = function(animationName){
     }
 }
 
-var addTimelinePlayhead = function(animationName, segments){
+var addTimelinePlayhead = function(animationName){
     var artboard = animations[animationName].timelineArtboard;
     var rectangle = findShapeWithName('playhead', artboard)[0];
+    var segments = filterLayersByName('timelineSegment', artboard.layers());
     // add playhead
     if(!rectangle){
         rectangle = artboard.addLayerOfType('rectangle');
@@ -256,12 +270,13 @@ var updateTimeline = function(animationName) {
         if((k-1) > (segments.length - 1)){
             // no segment -- add new segment
             var x = timing.delay / MSPERPIXEL;
-            var y = 0;
+            var y = (k-1) * TIMELINELAYOUT.height + TIMELINELAYOUT.margin ;
             var width = timing.duration / MSPERPIXEL;
-            var height = TIMELINEHEIGHT; 
+            var height = TIMELINELAYOUT.height; 
             if(prevSegment){
                 var prevSegmentFrame = prevSegment.rect();
                 x = prevSegmentFrame.origin.x + prevSegmentFrame.size.width + (timing.delay / 10);
+                timing.startTime = x;
 
             }
             animations[animationName].timelineArtboard.frame().setConstrainProportions(0);
@@ -281,19 +296,12 @@ var updateTimeline = function(animationName) {
             // resizing timeline segments messes up text size
             var text = findTextWithName('timelineSegmentTitle', segment);
             text[0].stringValue = k + "";
-            text[0].setFontSize(45);
+            text[0].setFontSize(55);
             
         }
     }
-    if(animations[animationName].timelineLegendArtboard){
-        animations[animationName].timelineArtboard.frame().setConstrainProportions(0);
-        updateFrame({
-            height: animations[animationName].timelineLegendArtboard.rect().size.height
-        }, animations[animationName].timelineArtboard)
-    }
-    if(segments.length > 0){
-           addTimelinePlayhead(animationName, segments);
-    }
+    matchTimelineHeightToLegendHeight(animationName);
+    addTimelinePlayhead(animationName);
 }
 
 var extractEasingCurve = function(transitionName, animationName){

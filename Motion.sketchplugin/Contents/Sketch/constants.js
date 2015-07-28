@@ -1,6 +1,9 @@
 var MSPERPIXEL = 1; // number of ms that each pixel on the timeline represents
-var TIMELINEHEIGHT = 60;
 var RESOURCESPATH =  "Motion.sketchplugin/Resources/";
+var TIMELINELAYOUT = {
+    height: 125,
+    margin: 120
+} 
 var LEGENDLAYOUT = {
     easeTileHeight : 125,
     easeTileWidth : 125,
