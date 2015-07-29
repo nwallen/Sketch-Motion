@@ -2,6 +2,7 @@ var SM = SM || {}; // global to namespace plugin
 
 @import 'common.js'
 @import 'libs/Tween.js'
+@import 'libs/rebound.js'
 @import 'constants.js'
 @import 'helpers.js'
 @import 'timeline.js'
@@ -24,6 +25,10 @@ SM.onStart = function(context){
     var pluginFolder = scriptPath.match(/Plugins\/([\w -])*/)[0] + "/";
     var basePath = scriptPath.split("Plugins")[0];
     pluginPath = basePath + pluginFolder
+    
+    // create spring system -- we'll update it manually with tweens in the animation loop
+    SM.springSystem  = new window.rebound.SpringSystem();
+    SM.springSystem.setLooper(new window.rebound.SteppingSimulationLooper());
 
     // Find animation artboards (keyframes)
     SM.initAnimations();
@@ -175,9 +180,34 @@ SM.initAnimations = function(){
     SM.calculateTransitions();
 }
 
+SM.mappedLayerPropertiesFromSpring = function(springVal, inState, outState){
+    var mappedValues = {};
+    if(inState.x != undefined){
+        mappedValues.x = window.rebound.MathUtil.mapValueInRange(springVal, 0, 1, inState.x, outState.x);
+    }
+    if(inState.y != undefined){
+        mappedValues.y = window.rebound.MathUtil.mapValueInRange(springVal, 0, 1, inState.y, outState.y);
+    }
+    if(inState.height != undefined){
+        mappedValues.height = window.rebound.MathUtil.mapValueInRange(springVal, 0, 1, inState.height, outState.height);
+    }
+    if(inState.width != undefined){
+        mappedValues.width = window.rebound.MathUtil.mapValueInRange(springVal, 0, 1, inState.width, outState.width);
+    }
+    if(inState.opacity != undefined){
+        mappedValues.opacity = window.rebound.MathUtil.mapValueInRange(springVal, 0, 1, inState.opacity, outState.opacity);
+    }
+    if(inState.rotation != undefined){
+        mappedValues.rotation = window.rebound.MathUtil.mapValueInRange(springVal, 0, 1, inState.rotation, outState.rotation);
+    }
+    return mappedValues
+}
+
+
 SM.createTween = function(states, targetLayer, containerLayer, timing, animationName, transitionName) {
     var layers = findLayerGroupsWithName(targetLayer.name(), containerLayer);
     var layer = layers[0];
+    var spring;
     var tween = new TWEEN.Tween(states.in)
             .to(states.out, timing.duration )
             .easing( timing.easing )
@@ -188,6 +218,17 @@ SM.createTween = function(states, targetLayer, containerLayer, timing, animation
                     SM.highlightTimelineFrame(transitionName, animationName);
                     SM.highlightLegendName(transitionName, animationName);
                 }
+                // if spring easing is selected create a rebound spring to handle animation
+                spring = SM.springSystem.createSpringWithBouncinessAndSpeed(20, 5);
+                spring.setRestSpeedThreshold = 0.5;
+                spring.setRestDisplacementThreshold = 0.5;
+                spring.addListener({
+                      onSpringUpdate: function(spring) {
+                        var properties = SM.mappedLayerPropertiesFromSpring(spring.getCurrentValue(), states.in, states.out);
+                        updateLayerProperties(properties, layer);  
+                      }
+                });
+                spring.setEndValue(1);
             })
             .onComplete(function(){
                 //log('animation stop ' + targetLayer.name()) 
@@ -197,7 +238,8 @@ SM.createTween = function(states, targetLayer, containerLayer, timing, animation
                 }
             })
             .onUpdate(function(){ 
-                updateLayerProperties(this, layer);  
+                // update unless a spring is handling this animation
+                // updateLayerProperties(this, layer);  
             });
     return tween;
 }
@@ -231,19 +273,26 @@ SM.initTweens = function(animation, containerLayer){
 
 SM.animate = function() {
     var fps = 60;
-    // run animation loop
     var animationStartTime;
+    var lastRuntime = 0;
+    // main animation loop
     [coscript scheduleWithRepeatingInterval:(1/fps) jsFunction:function(cinterval){
         if(animationStartTime == undefined){
             animationStartTime = Date.now(); //note time of first animation loop
         }
-        var runTime = Date.now() - animationStartTime; // calculate how long animation has run
-        TWEEN.update(SM.pluginStartTime + runTime); // move animation by runtime
+        // update tweens
+        var runTime = Date.now() - animationStartTime; // how long animation has run
+        TWEEN.update(SM.pluginStartTime + runTime); // move tweens to match runtime
+        // update spring system
+        var stepTime = runTime - lastRuntime; // interval since last loop 
+        SM.springSystem.looper.step(stepTime);
+        // refresh to show animation
         doc.currentView().refresh();
-        // kill loop when tweens are done
-        if(TWEEN.getAll().length == 0){
-            //log("animation took " + runTime + "ms to run" );
+        lastRuntime = runTime;
+        // kill loop when tweens and springs are done
+        if(TWEEN.getAll().length == 0 && SM.springSystem.getIsIdle()){
             [cinterval cancel]
+            doc.showMessage("animation done")
         } 
     }];
 }
@@ -256,11 +305,12 @@ SM.animateAndSaveGIF = function() {
     SM.initGIFexport();
     [coscript scheduleWithRepeatingInterval:(1/fps) jsFunction:function(cinterval){
         TWEEN.update(animationTime);
+        SM.springSystem.looper.step(1000/fps);
         doc.currentView().refresh();
         SM.exportArtboardToGIFset(SM.selectedArtboard)
         animationTime += 1000/fps; // 1000/fps = ms/frame -- manually increment to not drop frames
-        // kill loop when tweens are done
-        if(TWEEN.getAll().length == 0){
+        // kill loop when tweens and springs are done
+        if(TWEEN.getAll().length == 0 && SM.springSystem.getIsIdle()){
             [cinterval cancel]
             SM.createGIF(fps, loops);
         } 
