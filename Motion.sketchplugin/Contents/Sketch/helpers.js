@@ -255,6 +255,21 @@ var addImage = function(imagePath, container, name) {
     return imageLayer;
 }
 
+var createRoundedRectangle = function(frame, style, cornerRadius){
+    var rectangleShape = MSRectangleShape.alloc().init();
+    rectangleShape.frame = MSRect.rectWithRect(NSMakeRect(0,0,100,100));
+    if(frame) updateFrame(frame, rectangleShape);
+
+    var shapeGroup = MSShapeGroup.shapeWithPath(rectangleShape);
+    var fill = shapeGroup.style().fills().addNewStylePart();
+    fill.color = MSColor.colorWithSVGString("#dd2020");
+    if(style) updateShapeStyle(style, shapeGroup);
+
+    if(cornerRadius) shapeGroup.layers().firstObject().setCornerRadiusFromComponents(cornerRadius);
+
+    return shapeGroup;
+}
+
 var createCircle = function(frame, style){
     var ovalShape = MSOvalShape.alloc().init();
     ovalShape.frame = MSRect.rectWithRect(NSMakeRect(0,0,100,100));

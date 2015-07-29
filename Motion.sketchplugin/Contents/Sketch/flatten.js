@@ -1,6 +1,6 @@
 // flattening artwork for faster animation
 
-SM.flattenArtwork = function(container){
+SM.flattenArtwork = function(container, finalName){
     var layers = container.layers();
     var layersToFlatten = [];
     for(var i=0; i < layers.count(); i++){
@@ -18,11 +18,11 @@ SM.flattenArtwork = function(container){
     }
     
     if(layersToFlatten.length > 0){
-        SM.replaceLayersWithImage(layersToFlatten, container);
+        SM.replaceLayersWithImage(layersToFlatten, container, finalName);
     }
 }
 
-SM.replaceLayersWithImage = function(layers, container){
+SM.replaceLayersWithImage = function(layers, container, finalName){
     var tempPath = NSTemporaryDirectory();
     var exportDebugPath = pluginPath + '/temp/';
     var string = [[NSProcessInfo processInfo] globallyUniqueString];
@@ -64,7 +64,8 @@ SM.replaceLayersWithImage = function(layers, container){
     [doc saveArtboardOrSlice:tempExportArtboard toFile:filename];
     tempExportArtboard.removeFromParent();
     // add exported image to original player
-    var flattenedImage = addImage(filename, container, container.name() + '-flattened');
+    var imageName = finalName || container.name() + '-flattened';
+    var flattenedImage = addImage(filename, container, imageName);
     updateFrame({
         x:0,
         y:0

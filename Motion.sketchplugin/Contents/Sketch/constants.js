@@ -5,8 +5,8 @@ var TIMELINELAYOUT = {
     margin: 120
 } 
 var LEGENDLAYOUT = {
-    easeTileHeight : 125,
-    easeTileWidth : 125,
+    curveTileHeight : 125,
+    curveTileWidth : 125,
     margin: 60,
     rowWidth: 800,
     textHeight: 50,
@@ -20,13 +20,14 @@ var LEGENDCOLORS = {
 }
 var ANIMATIONCURVEFILENAME = "easingCurves.png";
 var ANIMATIONCURVEOPTIONS = [
-    {ease: TWEEN.Easing.Linear.None, type: "ease"},
-    {ease: TWEEN.Easing.Sinusoidal.In, type: "ease"},
-    {ease: TWEEN.Easing.Sinusoidal.Out, type: "ease"},
-    {ease: TWEEN.Easing.Sinusoidal.InOut, type: "ease"},
-    {ease: TWEEN.Easing.Elastic.In, type: "ease"},
-    {ease: TWEEN.Easing.Elastic.Out, type: "ease"},
-    {ease: TWEEN.Easing.Elastic.InOut, type: "ease"}
+    {ease: TWEEN.Easing.Linear.None, type: "ease", color: "#BFFF00"},
+    {ease: TWEEN.Easing.Sinusoidal.In, type: "ease", color: "#05E883"},
+    {ease: TWEEN.Easing.Sinusoidal.Out, type: "ease", color: "#085AFF"},
+    {ease: TWEEN.Easing.Sinusoidal.InOut, type: "ease", color: "#B405E8"},
+    {ease: TWEEN.Easing.Elastic.In, type: "ease", color: "#FF3305"},
+    {ease: TWEEN.Easing.Elastic.Out, type: "ease", color: "#E8D50C"},
+    {type:"popSpring", name:"POP spring 1", color: "#FF7707"}
+    //{ease: TWEEN.Easing.Elastic.InOut, type: "ease", color: "#FF7707"}
 ];
 var TIMELINECOLORS = {
     background: "#C7C5C5",
@@ -36,10 +37,10 @@ var TIMELINECOLORS = {
     highlight: "#76F6B3"
 }
 var POPCONFIGLAYOUT = {
-    cellSize: 20,
-    margin: 50,
+    cellSize: 30,
+    margin: 30,
 }
 var POPCONFIGCOLORS = {
     background:"#50E3C2",
-    grid:"#3FC7A8"
+    grid:"#666666"
 }

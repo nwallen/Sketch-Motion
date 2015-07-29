@@ -43,13 +43,34 @@ SM.createTimelineSegment = function(x, y, width, height, index, transitionName, 
     return group;
 }
 
+SM.generateCurveSelector = function(targetContainer){
+    var group = [MSLayerGroup new];
+    updateFrame({
+        width: LEGENDLAYOUT.curveTileWidth,
+        height: LEGENDLAYOUT.curveTileHeight 
+    }, group)
+    for(var i=0; i < ANIMATIONCURVEOPTIONS.length; i++){
+        var rectangle = createRoundedRectangle({
+            x: i * LEGENDLAYOUT.curveTileWidth,
+            width: LEGENDLAYOUT.curveTileWidth,
+            height: LEGENDLAYOUT.curveTileHeight
+        }, {
+            fill: ANIMATIONCURVEOPTIONS[i].color
+        }, "20/20/20/20");
+        group.addLayers([rectangle]);
+    }
+    SM.flattenArtwork(group, "animationCurve"); // flatten to an image to facilitate horizontal scrolling
+    var image = findImageWithName("animationCurve", group)[0];
+    targetContainer.addLayers([image]);
+}
+
 SM.createLegendDetail = function(k, transitionName, timing){
     var detail = [MSLayerGroup new]
     updateFrame({
         x : LEGENDLAYOUT.margin,
-        y : ((k-1) * (LEGENDLAYOUT.easeTileHeight + LEGENDLAYOUT.margin)) + LEGENDLAYOUT.margin,
+        y : ((k-1) * (LEGENDLAYOUT.curveTileHeight + LEGENDLAYOUT.margin)) + LEGENDLAYOUT.margin,
         width : LEGENDLAYOUT.rowWidth,
-        height : LEGENDLAYOUT.easeTileHeight
+        height : LEGENDLAYOUT.curveTileHeight
     }, detail);
     detail.setName(transitionName);
     
@@ -62,9 +83,9 @@ SM.createLegendDetail = function(k, transitionName, timing){
         color: LEGENDCOLORS.index
     }, index)
     updateFrame({
-        x : LEGENDLAYOUT.easeTileWidth + LEGENDLAYOUT.margin,
+        x : LEGENDLAYOUT.curveTileWidth + LEGENDLAYOUT.margin,
         y : 0,
-        width : LEGENDLAYOUT.rowWidth - LEGENDLAYOUT.easeTileWidth - (LEGENDLAYOUT.margin * 3)
+        width : LEGENDLAYOUT.rowWidth - LEGENDLAYOUT.curveTileWidth - (LEGENDLAYOUT.margin * 3)
     }, index);
 
     var info = detail.addLayerOfType('text');
@@ -76,9 +97,9 @@ SM.createLegendDetail = function(k, transitionName, timing){
         color: LEGENDCOLORS.info
     }, info)
     updateFrame({
-        x : LEGENDLAYOUT.easeTileWidth + LEGENDLAYOUT.margin,
-        y : LEGENDLAYOUT.easeTileHeight * .40,
-        width : LEGENDLAYOUT.rowWidth - LEGENDLAYOUT.easeTileWidth - (LEGENDLAYOUT.margin * 3)
+        x : LEGENDLAYOUT.curveTileWidth + LEGENDLAYOUT.margin,
+        y : LEGENDLAYOUT.curveTileHeight * .40,
+        width : LEGENDLAYOUT.rowWidth - LEGENDLAYOUT.curveTileWidth - (LEGENDLAYOUT.margin * 3)
     }, info);
 
     var curve = detail.addLayerOfType('group');
@@ -87,13 +108,15 @@ SM.createLegendDetail = function(k, transitionName, timing){
     var curveMask = curve.addLayerOfType('rectangle');
     curveMask.setName('curveMask');
     updateFrame({
-       width : LEGENDLAYOUT.easeTileWidth,
-       height : LEGENDLAYOUT.easeTileHeight
+       width : LEGENDLAYOUT.curveTileWidth,
+       height : LEGENDLAYOUT.curveTileHeight
     }, curveMask);
     curveMask.setHasClippingMask(true);
 
-    var imagePath = pluginPath + RESOURCESPATH + ANIMATIONCURVEFILENAME;
-    var image = addImage(imagePath, curve, 'animationCurve');
+    //var imagePath = pluginPath + RESOURCESPATH + ANIMATIONCURVEFILENAME;
+    //var image = addImage(imagePath, curve, 'animationCurve');
+    
+    SM.generateCurveSelector(curve);
 
     return detail
 }
@@ -114,7 +137,7 @@ SM.coordsToPopConfigVal = function(coords){
     return {speed:speed, bounciness:bounciness}
 }
 
-SM.getPopSpringConfig = function(springName, animationName){
+SM.getPopSpringConfig = function(springName, animationName, curveColor){
     var defaultConfig = {speed:4, bounciness:10};
     var artboard = getArtboardsWithNameInDocument(springName)[0];
     if(artboard){
@@ -138,10 +161,10 @@ SM.getPopSpringConfig = function(springName, animationName){
         // init artboard
         artboard = [MSArtboardGroup new];
         artboard.setHasBackgroundColor(true);
-        artboard.setBackgroundColor(MSColor.colorWithSVGString(POPCONFIGCOLORS.background));
+        artboard.setBackgroundColor(MSColor.colorWithSVGString(curveColor || POPCONFIGCOLORS.background));
         artboard.setName(springName);  
         updateFrame({
-            x: relevantKeyframe.rect().origin.x - 550,
+            x: relevantKeyframe.rect().origin.x - (POPCONFIGLAYOUT.cellSize * 20) - (POPCONFIGLAYOUT.margin*4),
             y: relevantKeyframe.rect().origin.y,
             width: (POPCONFIGLAYOUT.cellSize * 20) + (POPCONFIGLAYOUT.margin * 2),
             height: (POPCONFIGLAYOUT.cellSize * 20) + (POPCONFIGLAYOUT.margin * 2)
@@ -151,6 +174,7 @@ SM.getPopSpringConfig = function(springName, animationName){
         var grid = generateGrid({rows:20, columns:20, size:POPCONFIGLAYOUT.cellSize},{
             border: {color: POPCONFIGCOLORS.grid, thickness:1}
         });
+        grid.style().contextSettings().opacity = .25;
         grid.setName("popGrid");
         grid.setIsLocked(true);
         updateFrame({
@@ -247,7 +271,7 @@ SM.updateTimelineLegend = function(animationName){
             var detailToDelete = details.objectAtIndex(details.count() - 1);
             [detailToDelete removeFromParent];
             SM.animations[animationName].timelineLegendArtboard.frame().setConstrainProportions(0);
-            SM.animations[animationName].timelineLegendArtboard.frame().subtractHeight(LEGENDLAYOUT.easeTileHeight + LEGENDLAYOUT.margin);
+            SM.animations[animationName].timelineLegendArtboard.frame().subtractHeight(LEGENDLAYOUT.curveTileHeight + LEGENDLAYOUT.margin);
             SM.matchTimelineHeightToLegendHeight(animationName);
         }
     }
@@ -261,7 +285,7 @@ SM.updateTimelineLegend = function(animationName){
             var detail =  SM.createLegendDetail(k, transitionName, timing);
             SM.animations[animationName].timelineLegendArtboard.addLayers([detail]);
             SM.animations[animationName].timelineLegendArtboard.frame().setConstrainProportions(0);
-            SM.animations[animationName].timelineLegendArtboard.frame().addHeight(LEGENDLAYOUT.easeTileHeight + LEGENDLAYOUT.margin)
+            SM.animations[animationName].timelineLegendArtboard.frame().addHeight(LEGENDLAYOUT.curveTileHeight + LEGENDLAYOUT.margin)
             SM.matchTimelineHeightToLegendHeight(animationName);
         }
         else {
@@ -278,12 +302,13 @@ SM.updateTimelineLegend = function(animationName){
             if(extractedEasing){
                 timing.easing = extractedEasing.ease;
                 timing.easingIndex = extractedEasing.easingIndex;
+                timing.popSpring = extractedEasing.popSpring;
             }
 
             var imageToUpdate = findImageWithName('animationCurve', detailToUpdate)[0];
             if(imageToUpdate){
                 updateFrame({
-                    x: -(LEGENDLAYOUT.easeTileWidth * timing.easingIndex) + 1,
+                    x: -(LEGENDLAYOUT.curveTileWidth * timing.easingIndex) + 1,
                     y:1
                 }, imageToUpdate)
             }
@@ -388,10 +413,10 @@ SM.extractEasingCurve = function(transitionName, animationName){
    
     if(imageLayers[0]){
         var selectorX =  imageLayers[0].frame().x();
-        var selectorIndex = Math.abs(Math.round(selectorX/LEGENDLAYOUT.easeTileWidth));
+        var selectorIndex = Math.abs(Math.round(selectorX/LEGENDLAYOUT.curveTileWidth));
         var curve = ANIMATIONCURVEOPTIONS[selectorIndex];
         if(curve.type == "popSpring"){
-            var springConfig = SM.getPopSpringConfig(curve.name + " config", animationName);
+            var springConfig = SM.getPopSpringConfig(curve.name + " config", animationName, curve.color);
             return { easingIndex: selectorIndex, ease:undefined, popSpring: springConfig }
         }
         else if (curve.type == "ease") {
