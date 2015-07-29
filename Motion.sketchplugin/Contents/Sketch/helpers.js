@@ -255,6 +255,49 @@ var addImage = function(imagePath, container, name) {
     return imageLayer;
 }
 
+var createCircle = function(frame, style){
+    var ovalShape = MSOvalShape.alloc().init();
+    ovalShape.frame = MSRect.rectWithRect(NSMakeRect(0,0,100,100));
+    if(frame) updateFrame(frame, ovalShape);
+
+    var shapeGroup = MSShapeGroup.shapeWithPath(ovalShape);
+    var fill = shapeGroup.style().fills().addNewStylePart();
+    fill.color = MSColor.colorWithSVGString("#dd2020");
+    if(style) updateShapeStyle(style, shapeGroup);
+
+    return shapeGroup;
+}
+
+var generateGrid = function(config, style){
+    var group = [MSLayerGroup new];
+    updateFrame({
+        width: config.columns * config.size,
+        height: config.rows * config.size
+    }, group)
+    
+    for(var r=0; r < config.rows; r++){
+        var row = group.addLayerOfType('rectangle');
+        updateFrame({
+            y: config.size * r,
+            width: group.frame().width(),
+            height: config.size
+        }, row)
+        if(style) updateShapeStyle(style, row);
+    }
+
+    for(var c=0; c < config.columns; c++){
+        var column = group.addLayerOfType('rectangle');
+        updateFrame({
+            x: config.size * c,
+            width: config.size,
+            height: group.frame().height()
+        }, column)
+        if(style) updateShapeStyle(style, column);
+    }
+    
+    return group
+}
+
 // number padding
 
 var numberPad = function(number, padding) {

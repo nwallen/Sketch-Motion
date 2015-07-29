@@ -35,3 +35,11 @@ var TIMELINECOLORS = {
     text: "#A6A6A6",
     highlight: "#76F6B3"
 }
+var POPCONFIGLAYOUT = {
+    cellSize: 20,
+    margin: 50,
+}
+var POPCONFIGCOLORS = {
+    background:"#50E3C2",
+    grid:"#3FC7A8"
+}

@@ -98,6 +98,83 @@ SM.createLegendDetail = function(k, transitionName, timing){
     return detail
 }
 
+SM.popConfigValToCoords = function(config){
+    var x = ((config.speed - 1) * POPCONFIGLAYOUT.cellSize) + POPCONFIGLAYOUT.margin;
+    var maxY = (POPCONFIGLAYOUT.cellSize * 19) + POPCONFIGLAYOUT.margin;
+    var y = ((config.bounciness - 1) * POPCONFIGLAYOUT.cellSize);
+    y = maxY - y;
+    return {x:x, y:y}
+}
+
+SM.coordsToPopConfigVal = function(coords){
+    var speed = Math.round(((coords.x - POPCONFIGLAYOUT.margin)/POPCONFIGLAYOUT.cellSize)) + 1;
+    var maxY = (POPCONFIGLAYOUT.cellSize * 19) + POPCONFIGLAYOUT.margin;
+    var yFromBottom = maxY - coords.y;
+    var bounciness =  Math.round(yFromBottom/POPCONFIGLAYOUT.cellSize) + 1; 
+    return {speed:speed, bounciness:bounciness}
+}
+
+SM.getPopSpringConfig = function(springName, animationName){
+    var defaultConfig = {speed:4, bounciness:10};
+    var artboard = getArtboardsWithNameInDocument(springName)[0];
+    if(artboard){
+        // exists -- read and return config
+        var marker = findShapeWithName("popValueMarker", artboard)[0];
+        if(!marker) return defaultConfig
+        var vals = SM.coordsToPopConfigVal({
+            x: marker.rect().origin.x,
+            y: marker.rect().origin.y
+        })
+        var snappedCoords = SM.popConfigValToCoords(vals);
+        updateFrame({
+            x: snappedCoords.x,
+            y: snappedCoords.y
+        }, marker)
+        return vals
+    }
+    else{
+        // doesn't exist -- create and return default config
+         var relevantKeyframe = SM.animations[animationName].keyframes[0].layer;
+        // init artboard
+        artboard = [MSArtboardGroup new];
+        artboard.setHasBackgroundColor(true);
+        artboard.setBackgroundColor(MSColor.colorWithSVGString(POPCONFIGCOLORS.background));
+        artboard.setName(springName);  
+        updateFrame({
+            x: relevantKeyframe.rect().origin.x - 550,
+            y: relevantKeyframe.rect().origin.y,
+            width: (POPCONFIGLAYOUT.cellSize * 20) + (POPCONFIGLAYOUT.margin * 2),
+            height: (POPCONFIGLAYOUT.cellSize * 20) + (POPCONFIGLAYOUT.margin * 2)
+
+        }, artboard)
+        // add grid
+        var grid = generateGrid({rows:20, columns:20, size:POPCONFIGLAYOUT.cellSize},{
+            border: {color: POPCONFIGCOLORS.grid, thickness:1}
+        });
+        grid.setName("popGrid");
+        grid.setIsLocked(true);
+        updateFrame({
+            x: POPCONFIGLAYOUT.margin,
+            y: POPCONFIGLAYOUT.margin
+        }, grid)
+        artboard.addLayers([grid]);
+        // add marker
+        var markerCoords = SM.popConfigValToCoords(defaultConfig);
+        var marker = createCircle({
+            x:markerCoords.x,
+            y:markerCoords.y,
+            width: POPCONFIGLAYOUT.cellSize,
+            height: POPCONFIGLAYOUT.cellSize
+        },{fill:"#ffffff"});
+        marker.setName("popValueMarker");
+        artboard.addLayers([marker]);
+        // add artboard
+        doc.currentPage().addLayers([artboard]);
+        return defaultConfig
+    }
+
+}
+
 SM.initTimelineArtboard = function(animationName, timelineArtboardName){
     var animationKeyframes = SM.animations[animationName].keyframes;
     var firstKeyframe = animationKeyframes[0].layer;
@@ -308,6 +385,7 @@ SM.extractEasingCurve = function(transitionName, animationName){
     var artboard = SM.animations[animationName].timelineLegendArtboard;
     var group = findLayerGroupsWithName(transitionName, artboard)
     var imageLayers = findImageWithName('animationCurve', group[0]);
+    log(SM.getPopSpringConfig("test POP config", animationName));
     if(imageLayers[0]){
         var selectorX =  imageLayers[0].frame().x();
         var selectorIndex = Math.abs(Math.round(selectorX/LEGENDLAYOUT.easeTileWidth));
