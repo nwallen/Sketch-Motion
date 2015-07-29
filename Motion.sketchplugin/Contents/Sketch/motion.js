@@ -176,7 +176,6 @@ SM.initAnimations = function(){
             }
         }
     }
-    SM.refreshAnimationTimelines();
     SM.calculateTransitions();
 }
 
@@ -332,6 +331,8 @@ SM.playAnimation = function(name, containerLayer){
     var containerFrame = containerLayer.rect();
     containerFrame.size = keyframeFrame.size;
     containerLayer.setRect(containerFrame);
+    // update timing and easing UI for animation
+    SM.refreshAnimationTimeline(targetAnimation.name);
     // Copy all top-level layer groups from first keyframe to containerlayer
     var layers = targetAnimation.keyframes[0].layer.layers();
     for(var t=0; t < [layers count]; t++){
