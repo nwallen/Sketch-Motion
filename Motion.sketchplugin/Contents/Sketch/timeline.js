@@ -385,11 +385,19 @@ SM.extractEasingCurve = function(transitionName, animationName){
     var artboard = SM.animations[animationName].timelineLegendArtboard;
     var group = findLayerGroupsWithName(transitionName, artboard)
     var imageLayers = findImageWithName('animationCurve', group[0]);
-    log(SM.getPopSpringConfig("test POP config", animationName));
+   
     if(imageLayers[0]){
         var selectorX =  imageLayers[0].frame().x();
         var selectorIndex = Math.abs(Math.round(selectorX/LEGENDLAYOUT.easeTileWidth));
-        return { easingIndex: selectorIndex, ease:ANIMATIONCURVEOPTIONS[selectorIndex].ease }
+        var curve = ANIMATIONCURVEOPTIONS[selectorIndex];
+        if(curve.type == "popSpring"){
+            var springConfig = SM.getPopSpringConfig(curve.name + " config", animationName);
+            return { easingIndex: selectorIndex, ease:undefined, popSpring: springConfig }
+        }
+        else if (curve.type == "ease") {
+            return { easingIndex: selectorIndex, ease:curve.ease, popSpring:undefined }
+        }
+        
     }
 }
 

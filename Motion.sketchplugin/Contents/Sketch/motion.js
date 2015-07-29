@@ -209,7 +209,6 @@ SM.createTween = function(states, targetLayer, containerLayer, timing, animation
     var spring;
     var tween = new TWEEN.Tween(states.in)
             .to(states.out, timing.duration )
-            .easing( timing.easing )
             .delay( timing.delay )
             .onStart(function(){
                 //log('animation start ' + targetLayer.name() + " ---- ")
@@ -218,16 +217,18 @@ SM.createTween = function(states, targetLayer, containerLayer, timing, animation
                     SM.highlightLegendName(transitionName, animationName);
                 }
                 // if spring easing is selected create a rebound spring to handle animation
-                spring = SM.springSystem.createSpringWithBouncinessAndSpeed(20, 5);
-                spring.setRestSpeedThreshold = 0.5;
-                spring.setRestDisplacementThreshold = 0.5;
-                spring.addListener({
-                      onSpringUpdate: function(spring) {
-                        var properties = SM.mappedLayerPropertiesFromSpring(spring.getCurrentValue(), states.in, states.out);
-                        updateLayerProperties(properties, layer);  
-                      }
-                });
-                spring.setEndValue(1);
+                if(timing.popSpring){
+                    spring = SM.springSystem.createSpringWithBouncinessAndSpeed(timing.popSpring.bounciness, timing.popSpring.speed);
+                    spring.setRestSpeedThreshold = 0.5;
+                    spring.setRestDisplacementThreshold = 0.5;
+                    spring.addListener({
+                          onSpringUpdate: function(spring) {
+                            var properties = SM.mappedLayerPropertiesFromSpring(spring.getCurrentValue(), states.in, states.out);
+                            updateLayerProperties(properties, layer);  
+                          }
+                    });
+                    spring.setEndValue(1);
+                }
             })
             .onComplete(function(){
                 //log('animation stop ' + targetLayer.name()) 
@@ -238,8 +239,11 @@ SM.createTween = function(states, targetLayer, containerLayer, timing, animation
             })
             .onUpdate(function(){ 
                 // update unless a spring is handling this animation
-                // updateLayerProperties(this, layer);  
+                if(!spring){
+                    updateLayerProperties(this, layer);     
+                }
             });
+    if(timing.easing) tween.easing( timing.easing ); // apply easing
     return tween;
 }
 

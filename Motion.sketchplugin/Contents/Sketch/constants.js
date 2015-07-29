@@ -20,13 +20,13 @@ var LEGENDCOLORS = {
 }
 var ANIMATIONCURVEFILENAME = "easingCurves.png";
 var ANIMATIONCURVEOPTIONS = [
-    {ease: TWEEN.Easing.Linear.None},
-    {ease: TWEEN.Easing.Sinusoidal.In},
-    {ease: TWEEN.Easing.Sinusoidal.Out},
-    {ease: TWEEN.Easing.Sinusoidal.InOut},
-    {ease: TWEEN.Easing.Elastic.In},
-    {ease: TWEEN.Easing.Elastic.Out},
-    {ease: TWEEN.Easing.Elastic.InOut}
+    {ease: TWEEN.Easing.Linear.None, type: "ease"},
+    {ease: TWEEN.Easing.Sinusoidal.In, type: "ease"},
+    {ease: TWEEN.Easing.Sinusoidal.Out, type: "ease"},
+    {ease: TWEEN.Easing.Sinusoidal.InOut, type: "ease"},
+    {ease: TWEEN.Easing.Elastic.In, type: "ease"},
+    {ease: TWEEN.Easing.Elastic.Out, type: "ease"},
+    {ease: TWEEN.Easing.Elastic.InOut, type: "ease"}
 ];
 var TIMELINECOLORS = {
     background: "#C7C5C5",
