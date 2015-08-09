@@ -14,28 +14,28 @@ SM.createTimelineSegment = function(x, y, width, height, index, transitionName, 
         height : height
     }, group);
     // rectangle
-    var rectangle = group.addLayerOfType('rectangle');
+    var rectangle = createRoundedRectangle(undefined,undefined,"20/20/20/20");
     rectangle.setName('timelineSegment');
     updateShapeStyle({
-        fill: TIMELINECOLORS.block,
-        border: {color: TIMELINECOLORS.blockBorder, thickness:1}
+        fill: TIMELINECOLORS.block
     }, rectangle)
     updateLayerProperties({
         width: group.rect().size.width,
         height: group.rect().size.height
     }, rectangle)
+    group.addLayers([rectangle])
     // title text
     var text = group.addLayerOfType('text');
     text.setName('timelineSegmentTitle');
     text.stringValue =  index + "";
     updateTextStyle({
         font: "HelveticaNeue-Bold",
-        size: 55,
+        size: 35,
         color: TIMELINECOLORS.text
     },text)
     text.textAlignment = 2; // align center
     updateLayerProperties({
-        y: TIMELINELAYOUT.height * .2,
+        y: TIMELINELAYOUT.height * .3,
         width: group.rect().size.width,
         height: group.rect().size.height
     }, text)
@@ -436,7 +436,7 @@ SM.updateTimeline = function(animationName) {
             // resizing timeline segments messes up text size
             var text = findTextWithName('timelineSegmentTitle', segment);
             text[0].stringValue = k + "";
-            text[0].setFontSize(55);
+            text[0].setFontSize(35);
             
         }
     }
