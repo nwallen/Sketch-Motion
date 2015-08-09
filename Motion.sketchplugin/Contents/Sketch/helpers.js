@@ -146,6 +146,7 @@ var animationTimelineName = function(animationName) {
 
 var updateLayerProperties = function(properties, layer){
     if(!layer) return
+    // position & size
     var frame = layer.rect();
     if(properties.x != undefined){
         frame.origin.x = properties.x;
@@ -159,30 +160,18 @@ var updateLayerProperties = function(properties, layer){
     if(properties.width != undefined){
         frame.size.width = properties.width;
     }
+    layer.setRect(frame);
+    // rotation
     if(properties.rotation != undefined){
         layer.setRotation(properties.rotation);
     }
-    layer.setRect(frame);
+    // opacity
+    if(!layer.style) return
     var style = layer.style();
     if(properties.opacity != undefined){
         style.contextSettings().opacity = properties.opacity;
     }
     layer.setStyle(style);
-}
-
-var updateFrame = function(frame, layer) {
-    if(frame.width != undefined){
-        layer.frame().setWidth(frame.width);
-    }
-    if(frame.height != undefined){
-        layer.frame().setHeight(frame.height);
-    }
-    if(frame.x != undefined){
-        layer.frame().setX(frame.x);
-    }
-    if(frame.y != undefined){
-        layer.frame().setY(frame.y);
-    }
 }
 
 var updateShapeStyle = function(style, shape) {
@@ -258,7 +247,7 @@ var addImage = function(imagePath, container, name) {
 var createRoundedRectangle = function(frame, style, cornerRadius){
     var rectangleShape = MSRectangleShape.alloc().init();
     rectangleShape.frame = MSRect.rectWithRect(NSMakeRect(0,0,100,100));
-    if(frame) updateFrame(frame, rectangleShape);
+    if(frame) updateLayerProperties(frame, rectangleShape);
 
     var shapeGroup = MSShapeGroup.shapeWithPath(rectangleShape);
     var fill = shapeGroup.style().fills().addNewStylePart();
@@ -273,7 +262,7 @@ var createRoundedRectangle = function(frame, style, cornerRadius){
 var createCircle = function(frame, style){
     var ovalShape = MSOvalShape.alloc().init();
     ovalShape.frame = MSRect.rectWithRect(NSMakeRect(0,0,100,100));
-    if(frame) updateFrame(frame, ovalShape);
+    if(frame) updateLayerProperties(frame, ovalShape);
 
     var shapeGroup = MSShapeGroup.shapeWithPath(ovalShape);
     var fill = shapeGroup.style().fills().addNewStylePart();
@@ -285,14 +274,14 @@ var createCircle = function(frame, style){
 
 var generateGrid = function(config, style){
     var group = [MSLayerGroup new];
-    updateFrame({
+    updateLayerProperties({
         width: config.columns * config.size,
         height: config.rows * config.size
     }, group)
     
     for(var r=0; r < config.rows; r++){
         var row = group.addLayerOfType('rectangle');
-        updateFrame({
+        updateLayerProperties({
             y: config.size * r,
             width: group.frame().width(),
             height: config.size
@@ -302,7 +291,7 @@ var generateGrid = function(config, style){
 
     for(var c=0; c < config.columns; c++){
         var column = group.addLayerOfType('rectangle');
-        updateFrame({
+        updateLayerProperties({
             x: config.size * c,
             width: config.size,
             height: group.frame().height()

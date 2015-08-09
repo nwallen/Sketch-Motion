@@ -7,7 +7,7 @@ SM.createTimelineSegment = function(x, y, width, height, index, transitionName, 
     var group = timelineArtboard.addLayerOfType('group');
     group.setName(transitionName);
     // size & position
-    updateFrame({
+    updateLayerProperties({
         x : x,
         y : y,
         width : width,
@@ -20,7 +20,7 @@ SM.createTimelineSegment = function(x, y, width, height, index, transitionName, 
         fill: TIMELINECOLORS.block,
         border: {color: TIMELINECOLORS.blockBorder, thickness:1}
     }, rectangle)
-    updateFrame({
+    updateLayerProperties({
         width: group.rect().size.width,
         height: group.rect().size.height
     }, rectangle)
@@ -33,19 +33,19 @@ SM.createTimelineSegment = function(x, y, width, height, index, transitionName, 
         size: 55,
         color: TIMELINECOLORS.text
     },text)
-    updateFrame({
+    text.textAlignment = 2; // align center
+    updateLayerProperties({
         y: TIMELINELAYOUT.height * .2,
         width: group.rect().size.width,
         height: group.rect().size.height
     }, text)
-    text.textAlignment = 2; // align center
 
     return group;
 }
 
 SM.generateCurveSelector = function(targetContainer){
     var group = [MSLayerGroup new];
-    updateFrame({
+    updateLayerProperties({
         width: LEGENDLAYOUT.curveTileWidth,
         height: LEGENDLAYOUT.curveTileHeight 
     }, group)
@@ -66,7 +66,7 @@ SM.generateCurveSelector = function(targetContainer){
 
 SM.createLegendDetail = function(k, transitionName, timing){
     var detail = [MSLayerGroup new]
-    updateFrame({
+    updateLayerProperties({
         x : LEGENDLAYOUT.margin,
         y : ((k-1) * (LEGENDLAYOUT.curveTileHeight + LEGENDLAYOUT.margin)) + LEGENDLAYOUT.margin,
         width : LEGENDLAYOUT.rowWidth,
@@ -82,7 +82,7 @@ SM.createLegendDetail = function(k, transitionName, timing){
         size: 35,
         color: LEGENDCOLORS.index
     }, index)
-    updateFrame({
+    updateLayerProperties({
         x : LEGENDLAYOUT.curveTileWidth + LEGENDLAYOUT.margin,
         y : 0,
         width : LEGENDLAYOUT.rowWidth - LEGENDLAYOUT.curveTileWidth - (LEGENDLAYOUT.margin * 3)
@@ -96,7 +96,7 @@ SM.createLegendDetail = function(k, transitionName, timing){
         size: 30,
         color: LEGENDCOLORS.info
     }, info)
-    updateFrame({
+    updateLayerProperties({
         x : LEGENDLAYOUT.curveTileWidth + LEGENDLAYOUT.margin,
         y : LEGENDLAYOUT.curveTileHeight * .40,
         width : LEGENDLAYOUT.rowWidth - LEGENDLAYOUT.curveTileWidth - (LEGENDLAYOUT.margin * 3)
@@ -107,7 +107,7 @@ SM.createLegendDetail = function(k, transitionName, timing){
 
     var curveMask = curve.addLayerOfType('rectangle');
     curveMask.setName('curveMask');
-    updateFrame({
+    updateLayerProperties({
        width : LEGENDLAYOUT.curveTileWidth,
        height : LEGENDLAYOUT.curveTileHeight
     }, curveMask);
@@ -149,7 +149,7 @@ SM.getPopSpringConfig = function(springName, animationName, curveColor){
             y: marker.rect().origin.y
         })
         var snappedCoords = SM.popConfigValToCoords(vals);
-        updateFrame({
+        updateLayerProperties({
             x: snappedCoords.x,
             y: snappedCoords.y
         }, marker)
@@ -163,7 +163,7 @@ SM.getPopSpringConfig = function(springName, animationName, curveColor){
         artboard.setHasBackgroundColor(true);
         artboard.setBackgroundColor(MSColor.colorWithSVGString(curveColor || POPCONFIGCOLORS.background));
         artboard.setName(springName);  
-        updateFrame({
+        updateLayerProperties({
             x: relevantKeyframe.rect().origin.x - (POPCONFIGLAYOUT.cellSize * 20) - (POPCONFIGLAYOUT.margin*4),
             y: relevantKeyframe.rect().origin.y,
             width: (POPCONFIGLAYOUT.cellSize * 20) + (POPCONFIGLAYOUT.margin * 2),
@@ -177,7 +177,7 @@ SM.getPopSpringConfig = function(springName, animationName, curveColor){
         grid.style().contextSettings().opacity = .25;
         grid.setName("popGrid");
         grid.setIsLocked(true);
-        updateFrame({
+        updateLayerProperties({
             x: POPCONFIGLAYOUT.margin,
             y: POPCONFIGLAYOUT.margin
         }, grid)
@@ -208,7 +208,7 @@ SM.initTimelineArtboard = function(animationName, timelineArtboardName){
     timelineArtboard.setHasBackgroundColor(true);
     timelineArtboard.setBackgroundColor(MSColor.colorWithSVGString(TIMELINECOLORS.background));
     timelineArtboard.setName(timelineArtboardName);   
-    updateFrame({
+    updateLayerProperties({
         x: keyframeFrame.origin.x + LEGENDLAYOUT.rowWidth + (LEGENDLAYOUT.margin * 3),
         y: keyframeFrame.origin.y + keyframeFrame.size.height + 120,
         height: TIMELINELAYOUT.height
@@ -233,7 +233,7 @@ SM.initTimelineLegendArtboard = function(animationName, timelineArtboardName){
     timelineLegendArtboard.setBackgroundColor(MSColor.colorWithSVGString(LEGENDCOLORS.background));
     var timelineLegendArtboardName = getLegendName(animationName);
     timelineLegendArtboard.setName(timelineLegendArtboardName);
-    updateFrame({
+    updateLayerProperties({
         x: keyframeFrame.origin.x ,
         y: keyframeFrame.origin.y + keyframeFrame.size.height + 120,
         height: LEGENDLAYOUT.margin,
@@ -252,7 +252,7 @@ SM.initTimelineLegendArtboard = function(animationName, timelineArtboardName){
 SM.matchTimelineHeightToLegendHeight = function(animationName){
     if(SM.animations[animationName].timelineArtboard && SM.animations[animationName].timelineLegendArtboard){
         SM.animations[animationName].timelineArtboard.frame().setConstrainProportions(0);
-        updateFrame({
+        updateLayerProperties({
             height: SM.animations[animationName].timelineLegendArtboard.rect().size.height
         }, SM.animations[animationName].timelineArtboard)
         SM.addTimelinePlayhead(animationName);
@@ -307,7 +307,7 @@ SM.updateTimelineLegend = function(animationName){
 
             var imageToUpdate = findImageWithName('animationCurve', detailToUpdate)[0];
             if(imageToUpdate){
-                updateFrame({
+                updateLayerProperties({
                     x: -(LEGENDLAYOUT.curveTileWidth * timing.easingIndex) + 1,
                     y:1
                 }, imageToUpdate)

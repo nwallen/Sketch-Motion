@@ -33,7 +33,7 @@ SM.replaceLayersWithImage = function(layers, container, finalName){
 
     // add artboard to export
     var tempExportArtboard = [MSArtboardGroup new]
-    updateFrame({
+    updateLayerProperties({
         x:10000,
         y:10000,
         width:10000,
@@ -43,7 +43,7 @@ SM.replaceLayersWithImage = function(layers, container, finalName){
     // add a group to hold artwork
     var exportGroup = tempExportArtboard.addLayerOfType('group');
     // set frame to 1x1 so that it snaps to artworks
-    updateFrame({
+    updateLayerProperties({
         width:1,
         height:1
     }, exportGroup)
@@ -55,7 +55,7 @@ SM.replaceLayersWithImage = function(layers, container, finalName){
         thisLayer.removeFromParent();
     }
     // match artboard size to export group
-    updateFrame({
+    updateLayerProperties({
         width: exportGroup.absoluteDirtyRect().size.width,
         height: exportGroup.absoluteDirtyRect().size.height
     }, tempExportArtboard)
@@ -66,7 +66,7 @@ SM.replaceLayersWithImage = function(layers, container, finalName){
     // add exported image to original player
     var imageName = finalName || container.name() + '-flattened';
     var flattenedImage = addImage(filename, container, imageName);
-    updateFrame({
+    updateLayerProperties({
         x:0,
         y:0
     }, flattenedImage)
