@@ -153,6 +153,10 @@ SM.getPopSpringConfig = function(springName, animationName, curveColor){
             x: snappedCoords.x,
             y: snappedCoords.y
         }, marker)
+        var bouncinessLabel = findTextWithName("bouncinessLabel", artboard)[0];
+        bouncinessLabel.stringValue = 'Bounciness ' + vals.bounciness;
+        var speedLabel = findTextWithName("speedLabel", artboard)[0];
+        speedLabel.stringValue = 'Speed ' + vals.speed;
         return vals
     }
     else{
@@ -182,6 +186,40 @@ SM.getPopSpringConfig = function(springName, animationName, curveColor){
             y: POPCONFIGLAYOUT.margin
         }, grid)
         artboard.addLayers([grid]);
+        
+        // add labels
+        var bouncinessLabel = artboard.addLayerOfType('text');
+        bouncinessLabel.stringValue = 'Bounciness ' + defaultConfig.bounciness;
+        bouncinessLabel.setName("bouncinessLabel")
+        bouncinessLabel.textAlignment = 2;
+        updateLayerProperties({
+            x: -(artboard.frame().height() * .5) + (POPCONFIGLAYOUT.margin * .5),
+            y: (artboard.frame().width() * .5),
+            rotation:90,
+            width: artboard.frame().height()
+        }, bouncinessLabel);
+        updateTextStyle({
+            font: "HelveticaNeue-Bold",
+            size: 35,
+            color: "#ffffff"
+        }, bouncinessLabel)
+        bouncinessLabel.setIsLocked(true);
+
+        var speedLabel = artboard.addLayerOfType('text');
+        speedLabel.stringValue = 'Bounciness ' + defaultConfig.bounciness;
+        speedLabel.setName("speedLabel")
+        speedLabel.textAlignment = 2;
+        updateLayerProperties({
+            y: artboard.frame().height() - POPCONFIGLAYOUT.margin,
+            width: artboard.frame().width()
+        }, speedLabel);
+        updateTextStyle({
+            font: "HelveticaNeue-Bold",
+            size: 35,
+            color: "#ffffff"
+        }, speedLabel)
+        speedLabel.setIsLocked(true);
+
         // add marker
         var markerCoords = SM.popConfigValToCoords(defaultConfig);
         var marker = createCircle({

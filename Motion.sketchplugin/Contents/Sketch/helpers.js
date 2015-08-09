@@ -148,17 +148,17 @@ var updateLayerProperties = function(properties, layer){
     if(!layer) return
     // position & size
     var frame = layer.rect();
-    if(properties.x != undefined){
-        frame.origin.x = properties.x;
-    }
-    if(properties.y != undefined){
-        frame.origin.y = properties.y;
-    }
     if(properties.height != undefined){
         frame.size.height = properties.height;
     }
     if(properties.width != undefined){
         frame.size.width = properties.width;
+    }
+    if(properties.x != undefined){
+        frame.origin.x = properties.x;
+    }
+    if(properties.y != undefined){
+        frame.origin.y = properties.y;
     }
     layer.setRect(frame);
     // rotation
