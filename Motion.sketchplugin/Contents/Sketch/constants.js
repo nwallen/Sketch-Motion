@@ -20,18 +20,38 @@ var LEGENDCOLORS = {
     curve: "#FAFAFA",
     highlight: "#76F6B3"
 }
-var ANIMATIONCURVEFILENAME = "easingCurves.png";
 var EASINGCURVES = [
     { curve:TWEEN.Easing.Linear.None, name:"Linear" },
-    { curve:TWEEN.Easing.Linear.None, name:"Linear" },
-    { curve:TWEEN.Easing.Linear.None, name:"Linear" },
-    { curve:TWEEN.Easing.Linear.None, name:"Linear" },
-    { curve:TWEEN.Easing.Linear.None, name:"Linear" },
-    { curve:TWEEN.Easing.Linear.None, name:"Linear" },
-    { curve:TWEEN.Easing.Linear.None, name:"Linear" },
-    { curve:TWEEN.Easing.Linear.None, name:"Linear" },
-    { curve:TWEEN.Easing.Linear.None, name:"Linear" },
-    { curve:TWEEN.Easing.Linear.None, name:"Linear" } 
+    { curve:TWEEN.Easing.Quadratic.In, name:"Quad In" },
+    { curve:TWEEN.Easing.Quadratic.Out, name:"Quad Out" },
+    { curve:TWEEN.Easing.Quadratic.InOut, name:"Quad InOut" },
+    { curve:TWEEN.Easing.Cubic.In, name:"Cubic In" },
+    { curve:TWEEN.Easing.Cubic.Out, name:"Cubic Out" },
+    { curve:TWEEN.Easing.Cubic.InOut, name:"Cubic InOut" },
+    { curve:TWEEN.Easing.Quartic.In, name:"Quart In" },
+    { curve:TWEEN.Easing.Quartic.Out, name:"Quart Out" },
+    { curve:TWEEN.Easing.Quartic.InOut, name:"Quart InOut" },
+    { curve:TWEEN.Easing.Quintic.In, name:"Quint In" },
+    { curve:TWEEN.Easing.Quintic.Out, name:"Quint Out" },
+    { curve:TWEEN.Easing.Quintic.InOut, name:"Quint InOut" },
+    { curve:TWEEN.Easing.Sinusoidal.In, name:"Sine In" },
+    { curve:TWEEN.Easing.Sinusoidal.Out, name:"Sine Out" },
+    { curve:TWEEN.Easing.Sinusoidal.InOut, name:"Sine InOut" },
+    { curve:TWEEN.Easing.Exponential.In, name:"Expo In" },
+    { curve:TWEEN.Easing.Exponential.Out, name:"Expo Out" },
+    { curve:TWEEN.Easing.Exponential.InOut, name:"Expo InOut" },
+    { curve:TWEEN.Easing.Circular.In, name:"Circ In" },
+    { curve:TWEEN.Easing.Circular.Out, name:"Circ Out" },
+    { curve:TWEEN.Easing.Circular.InOut, name:"Circ InOut" },
+    { curve:TWEEN.Easing.Elastic.In, name:"Elastic In" },
+    { curve:TWEEN.Easing.Elastic.Out, name:"Elastic Out" },
+    { curve:TWEEN.Easing.Elastic.InOut, name:"Elastic InOut" },
+    { curve:TWEEN.Easing.Back.In, name:"Back In" },
+    { curve:TWEEN.Easing.Back.Out, name:"Back Out" },
+    { curve:TWEEN.Easing.Back.InOut, name:"Back InOut" },
+    { curve:TWEEN.Easing.Bounce.In, name:"Bounce In" },
+    { curve:TWEEN.Easing.Bounce.Out, name:"Bounce Out" },
+    { curve:TWEEN.Easing.Bounce.InOut, name:"Bounce InOut" },        
 ]
 var ANIMATIONCURVEOPTIONS = [
     {type: "ease", name:"Easing Curve 1", color: "#66c2a5"},
@@ -51,10 +71,10 @@ var TIMELINECOLORS = {
     highlight: "#76F6B3"
 }
 var EASINGCONFIGLAYOUT = {
-    cellSize: 300,
+    cellSize: 200,
     cellMargin: 20,
-    margin: 150,
-    columns: 3
+    margin: 200,
+    columns: 6
 }
 var EASINGCONFIGCOLORS = {
     cell: "#CCCCCC"
