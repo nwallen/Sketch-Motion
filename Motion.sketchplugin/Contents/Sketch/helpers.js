@@ -275,16 +275,16 @@ var createCircle = function(frame, style){
 var generateGrid = function(config, style){
     var group = [MSLayerGroup new];
     updateLayerProperties({
-        width: config.columns * config.size,
-        height: config.rows * config.size
+        width: config.columns * config.size.width,
+        height: config.rows * config.size.height
     }, group)
     
     for(var r=0; r < config.rows; r++){
         var row = group.addLayerOfType('rectangle');
         updateLayerProperties({
-            y: config.size * r,
+            y: config.size.height * r,
             width: group.frame().width(),
-            height: config.size
+            height: config.size.height
         }, row)
         if(style) updateShapeStyle(style, row);
     }
@@ -292,8 +292,8 @@ var generateGrid = function(config, style){
     for(var c=0; c < config.columns; c++){
         var column = group.addLayerOfType('rectangle');
         updateLayerProperties({
-            x: config.size * c,
-            width: config.size,
+            x: config.size.width * c,
+            width: config.size.width,
             height: group.frame().height()
         }, column)
         if(style) updateShapeStyle(style, column);

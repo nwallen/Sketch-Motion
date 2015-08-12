@@ -175,7 +175,7 @@ SM.getPopSpringConfig = function(springName, animationName, curveColor){
 
         }, artboard)
         // add grid
-        var grid = generateGrid({rows:20, columns:20, size:POPCONFIGLAYOUT.cellSize},{
+        var grid = generateGrid({rows:20, columns:20, size:{ width:POPCONFIGLAYOUT.cellSize, height:POPCONFIGLAYOUT.cellSize }},{
             border: {color: POPCONFIGCOLORS.grid, thickness:1}
         });
         grid.style().contextSettings().opacity = .25;
@@ -251,9 +251,17 @@ SM.initTimelineArtboard = function(animationName, timelineArtboardName){
         y: keyframeFrame.origin.y + keyframeFrame.size.height + 120,
         height: TIMELINELAYOUT.height
     },timelineArtboard)
+    // add time markers
+    var timeGrid = generateGrid({rows:1, columns:100, size:{ width:TIMELINELAYOUT.timeMarkInterval, height:10000 }},{
+        border: {color: POPCONFIGCOLORS.grid, thickness:1}
+    });
+    timeGrid.setName("timelineGrid")
+    timeGrid.setIsLocked(true);
+    timeGrid.style().contextSettings().opacity = .25;
+    timelineArtboard.addLayers([timeGrid]);
      // don't maintain proportions on resize
     timelineArtboard.frame().setConstrainProportions(0);
-    // save reference to artboards in animation config object
+    // save reference to artboard in animation config object
     SM.animations[animationName].timelineArtboard = timelineArtboard;
     // add artboard to page
     doc.currentPage().addLayers([timelineArtboard]);
@@ -410,7 +418,7 @@ SM.updateTimeline = function(animationName) {
         if((k-1) > (segments.length - 1)){
             // no segment -- add new segment
             var x = timing.delay / MSPERPIXEL;
-            var y = (k-1) * TIMELINELAYOUT.height + TIMELINELAYOUT.margin ;
+            var y = (k-1) * TIMELINELAYOUT.height + TIMELINELAYOUT.margin + (k * TIMELINELAYOUT.verticalSpacing) ;
             var width = timing.duration / MSPERPIXEL;
             var height = TIMELINELAYOUT.height; 
             if(prevSegment){
