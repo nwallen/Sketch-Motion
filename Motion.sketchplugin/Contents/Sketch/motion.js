@@ -218,7 +218,6 @@ SM.createTween = function(states, targetLayer, containerLayer, timing, animation
                 }
                 // if spring easing is selected create a rebound spring to handle animation
                 if(timing.popSpring){
-                    log(timing.popSpring);
                     spring = SM.springSystem.createSpringWithBouncinessAndSpeed(timing.popSpring.bounciness, timing.popSpring.speed);
                     spring.setRestSpeedThreshold = 0.5;
                     spring.setRestDisplacementThreshold = 0.5;
