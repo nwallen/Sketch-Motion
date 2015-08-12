@@ -243,7 +243,7 @@ SM.createTween = function(states, targetLayer, containerLayer, timing, animation
                     updateLayerProperties(this, layer);     
                 }
             });
-    if(timing.easing) tween.easing( timing.easing ); // apply easing
+    if(timing.easing) tween.easing( timing.easing.curve ); // apply easing
     return tween;
 }
 

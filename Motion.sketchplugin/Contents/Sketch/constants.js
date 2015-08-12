@@ -21,15 +21,27 @@ var LEGENDCOLORS = {
     highlight: "#76F6B3"
 }
 var ANIMATIONCURVEFILENAME = "easingCurves.png";
+var EASINGCURVES = [
+    { curve:TWEEN.Easing.Linear.None, name:"Linear" },
+    { curve:TWEEN.Easing.Linear.None, name:"Linear" },
+    { curve:TWEEN.Easing.Linear.None, name:"Linear" },
+    { curve:TWEEN.Easing.Linear.None, name:"Linear" },
+    { curve:TWEEN.Easing.Linear.None, name:"Linear" },
+    { curve:TWEEN.Easing.Linear.None, name:"Linear" },
+    { curve:TWEEN.Easing.Linear.None, name:"Linear" },
+    { curve:TWEEN.Easing.Linear.None, name:"Linear" },
+    { curve:TWEEN.Easing.Linear.None, name:"Linear" },
+    { curve:TWEEN.Easing.Linear.None, name:"Linear" } 
+]
 var ANIMATIONCURVEOPTIONS = [
-    {ease: TWEEN.Easing.Linear.None, type: "ease", color: "#BFFF00"},
-    {ease: TWEEN.Easing.Sinusoidal.In, type: "ease", color: "#05E883"},
-    {ease: TWEEN.Easing.Sinusoidal.Out, type: "ease", color: "#085AFF"},
-    {ease: TWEEN.Easing.Sinusoidal.InOut, type: "ease", color: "#B405E8"},
-    {ease: TWEEN.Easing.Elastic.In, type: "ease", color: "#FF3305"},
-    {ease: TWEEN.Easing.Elastic.Out, type: "ease", color: "#E8D50C"},
-    {type:"popSpring", name:"POP spring 1", color: "#FF7707"}
-    //{ease: TWEEN.Easing.Elastic.InOut, type: "ease", color: "#FF7707"}
+    {type: "ease", name:"Easing Curve 1", color: "#66c2a5"},
+    {type: "ease", name:"Easing Curve 2", color: "#fc8d62"},
+    {type: "ease", name:"Easing Curve 3", color: "#8da0cb"},
+    {type: "ease", name:"Easing Curve 4", color: "#e78ac3"},
+    {type:"popSpring", name:"POP spring 1", color: "#a6d854"},
+    {type:"popSpring", name:"POP spring 2", color: "#ffd92f"},
+    {type:"popSpring", name:"POP spring 3", color: "#e5c494"},
+    {type:"popSpring", name:"POP spring 4", color: "#b3b3b3"}
 ];
 var TIMELINECOLORS = {
     background: "#C7C5C5",
@@ -37,6 +49,15 @@ var TIMELINECOLORS = {
     blockBorder: "#A6A6A6",
     text: "#A6A6A6",
     highlight: "#76F6B3"
+}
+var EASINGCONFIGLAYOUT = {
+    cellSize: 300,
+    cellMargin: 20,
+    margin: 150,
+    columns: 3
+}
+var EASINGCONFIGCOLORS = {
+    cell: "#CCCCCC"
 }
 var POPCONFIGLAYOUT = {
     cellSize: 25,

@@ -161,7 +161,7 @@ SM.getPopSpringConfig = function(springName, animationName, curveColor){
     }
     else{
         // doesn't exist -- create and return default config
-         var relevantKeyframe = SM.animations[animationName].keyframes[0].layer;
+        var relevantKeyframe = SM.animations[animationName].keyframes[0].layer;
         // init artboard
         artboard = [MSArtboardGroup new];
         artboard.setHasBackgroundColor(true);
@@ -235,6 +235,92 @@ SM.getPopSpringConfig = function(springName, animationName, curveColor){
         return defaultConfig
     }
 
+}
+
+SM.curveGridCoordsFromIndex = function(curveIndex){
+    var coords = {}
+    coords.x = (curveIndex % EASINGCONFIGLAYOUT.columns) * EASINGCONFIGLAYOUT.cellSize + (EASINGCONFIGLAYOUT.cellMargin * (curveIndex % EASINGCONFIGLAYOUT.columns));
+    coords.y = parseInt(curveIndex / EASINGCONFIGLAYOUT.columns) * EASINGCONFIGLAYOUT.cellSize + (EASINGCONFIGLAYOUT.cellMargin * parseInt(curveIndex / EASINGCONFIGLAYOUT.columns));
+    return coords 
+}
+
+SM.indexFromCurveGridCoords = function(coords){
+
+}
+
+SM.createCurveGrid = function(){
+    var group = [MSLayerGroup new]
+    for(var i=0; i < EASINGCURVES.length; i++){
+        var coords = SM.curveGridCoordsFromIndex(i);
+        var rectangle = createRoundedRectangle({
+            x: coords.x,
+            y: coords.y,
+            width: EASINGCONFIGLAYOUT.cellSize,
+            height: EASINGCONFIGLAYOUT.cellSize
+        }, {
+            fill: EASINGCONFIGCOLORS.cell
+        }, "20/20/20/20");
+        group.addLayers([rectangle])
+        var label = group.addLayerOfType('text');
+        label.stringValue = EASINGCURVES[i].name;
+        updateLayerProperties({
+            x: coords.x + (EASINGCONFIGLAYOUT.cellSize * .5) - label.frame().size().width,
+            y: coords.y + (EASINGCONFIGLAYOUT.cellSize * .75)
+        }, label);
+        updateTextStyle({
+            font: "HelveticaNeue-Bold",
+            size: 35,
+            color: "#ffffff"
+        }, label);
+        
+
+    }
+    SM.flattenArtwork(group, "curveGrid")
+    return findImageWithName("curveGrid", group)[0]
+}
+
+SM.getEasingConfig = function(easingConfigName, animationName, curveColor){
+    var defaultConfig = EASINGCURVES[0];
+    var artboard = getArtboardsWithNameInDocument(easingConfigName)[0];
+    if(artboard){
+        // exists -- return easing curve
+    }
+    else {
+        // does not exist -- init and return default easing curve
+        var relevantKeyframe = SM.animations[animationName].keyframes[0].layer;
+        artboard = [MSArtboardGroup new];
+        artboard.setHasBackgroundColor(true);
+        artboard.setBackgroundColor(MSColor.colorWithSVGString(curveColor));
+        updateLayerProperties({
+            x: relevantKeyframe.rect().origin.x - (EASINGCONFIGLAYOUT.cellSize) - (EASINGCONFIGLAYOUT.margin*2),
+            y: relevantKeyframe.rect().origin.y,
+            width: (EASINGCONFIGLAYOUT.cellSize) + (EASINGCONFIGLAYOUT.margin * 2),
+            height: (EASINGCONFIGLAYOUT.cellSize) + (EASINGCONFIGLAYOUT.margin * 2)
+
+        }, artboard)
+        artboard.setName(easingConfigName);
+        // create mask
+        var mask = artboard.addLayerOfType('rectangle');
+        updateLayerProperties({
+            width: EASINGCONFIGLAYOUT.cellSize,
+            height: EASINGCONFIGLAYOUT.cellSize,
+            x: EASINGCONFIGLAYOUT.margin,
+            y: EASINGCONFIGLAYOUT.margin
+        }, mask)
+        mask.setName("curveGridMask");
+        mask.setHasClippingMask(true);
+        mask.setIsLocked(true);
+        // create curve grid
+        var curveGrid = SM.createCurveGrid();
+        updateLayerProperties({
+            x: EASINGCONFIGLAYOUT.margin,
+            y: EASINGCONFIGLAYOUT.margin
+        }, curveGrid)
+        artboard.addLayers([curveGrid])
+        // add artboard to page
+        doc.currentPage().addLayers([artboard]);
+        return defaultConfig;
+    }
 }
 
 SM.initTimelineArtboard = function(animationName, timelineArtboardName){
@@ -455,10 +541,10 @@ SM.updateTimeline = function(animationName) {
 SM.extractEasingCurve = function(transitionName, animationName){
     var artboard = SM.animations[animationName].timelineLegendArtboard;
     var group = findLayerGroupsWithName(transitionName, artboard)
-    var imageLayers = findImageWithName('animationCurve', group[0]);
+    var imageLayer = findImageWithName('animationCurve', group[0])[0];
    
-    if(imageLayers[0]){
-        var selectorX =  imageLayers[0].frame().x();
+    if(imageLayer){
+        var selectorX =  imageLayer.frame().x();
         var selectorIndex = Math.abs(Math.round(selectorX/LEGENDLAYOUT.curveTileWidth));
         var curve = ANIMATIONCURVEOPTIONS[selectorIndex];
         if(curve.type == "popSpring"){
@@ -466,7 +552,8 @@ SM.extractEasingCurve = function(transitionName, animationName){
             return { easingIndex: selectorIndex, ease:undefined, popSpring: springConfig }
         }
         else if (curve.type == "ease") {
-            return { easingIndex: selectorIndex, ease:curve.ease, popSpring:undefined }
+            var easingConfig = SM.getEasingConfig(curve.name + " config", animationName, curve.color);
+            return { easingIndex: selectorIndex, ease: easingConfig, popSpring:undefined }
         }
         
     }
